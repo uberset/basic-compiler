@@ -28,8 +28,18 @@ object Parser {
 
     def program(in: BufferedReader): Program = {
         val s = in.readLine()
-        val p: Print = stmPrint(s)
+        val s1 = stripSpaces(s)
+        val p: Print = stmPrint(s1)
         Program(p)
+    }
+
+    // removes all spaces outside outside quotes
+    def stripSpaces(s: String): String = {
+        val s1 = " "+s+" " // workaround for strange split method
+        s1.split('\"')
+        .zipWithIndex
+        .map{ case (s,i) => if(i%2==0) s.replaceAll(" ", "") else s }
+        .mkString("\"")
     }
 
     val PRINT = "PRINT"
