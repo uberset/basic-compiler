@@ -11,7 +11,9 @@ object TestParser {
 
     def main(args: Array[String]): Unit = {
         val results = Seq(
-            test("""PRINT"Hello World!"""", Program(Print("Hello World!")))
+            test("""PRINT"Hello World!"""", Program(Print("Hello World!"))),
+            test("""PRINT "Hello World!"""", Program(Print("Hello World!"))),
+            test(""" P R I N T "Hello World!" """, Program(Print("Hello World!")))
         )
         val tests = results.size
         val passed = results.filter(identity).size
@@ -23,8 +25,14 @@ object TestParser {
     }
 
     def test(text: String, tree: Program): Boolean = {
-        val prog = Parser.parse(text)
-        assertEquals(prog, tree)
+        try {
+            val prog = Parser.parse(text)
+            assertEquals(prog, tree)
+        } catch {
+            case e: Exception =>
+                println(e.getMessage)
+                false
+        }
     }
 
     def assertEquals(value: AnyRef, expected: AnyRef): Boolean = {
