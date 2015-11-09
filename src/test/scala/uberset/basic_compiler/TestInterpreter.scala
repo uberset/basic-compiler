@@ -29,7 +29,7 @@ object TestInterpreter {
     def test(text: String, output: String): Boolean = {
         try {
             val prog = Parser.parse(text)
-            val out = Interpreter.run(prog).toList.mkString
+            val out = Interpreter.run(prog).mkString
             assertEquals(out, output)
         } catch {
             case e: Exception =>
