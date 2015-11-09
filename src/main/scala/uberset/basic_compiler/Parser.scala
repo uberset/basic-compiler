@@ -11,7 +11,8 @@ import java.io.{BufferedReader, StringReader}
 
 /*
 grammar:
-  program = 'PRINT' string ;
+  program = print ;
+  print = 'PRINT' string ;
   string = '"' string-char* '"' ;
   string-char = ? any character except '"' and newline> ? ;
 */
