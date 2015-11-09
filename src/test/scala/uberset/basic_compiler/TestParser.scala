@@ -11,9 +11,13 @@ object TestParser {
 
     def main(args: Array[String]): Unit = {
         val results = Seq(
-            test("""PRINT"Hello World!"""", Program(Print("Hello World!"))),
-            test("""PRINT "Hello World!"""", Program(Print("Hello World!"))),
-            test(""" P R I N T "Hello World!" """, Program(Print("Hello World!")))
+            test("""PRINT"Hello World!"""", Program(Seq(Line(Print("Hello World!"))))),
+            test("""PRINT "Hello World!"""", Program(Seq(Line(Print("Hello World!"))))),
+            test(""" P R I N T "Hello World!" """, Program(Seq(Line(Print("Hello World!"))))),
+            test("""PRINT "Hello"
+                   |PRINT "World!"""".stripMargin,
+                Program(Seq(Line(Print("Hello")),
+                            Line(Print("World!")))))
         )
         val tests = results.size
         val passed = results.filter(identity).size

@@ -2,6 +2,8 @@ package uberset.basic_compiler
 
 import java.io.{BufferedReader, StringReader}
 
+import scala.collection.mutable.ListBuffer
+
 /*
   Author: uberset
   Date: 2015-11-09
@@ -11,13 +13,15 @@ import java.io.{BufferedReader, StringReader}
 
 /*
 grammar:
-  program = print ;
+  program = line* ;
+  line = print ;
   print = 'PRINT' string ;
   string = '"' string-char* '"' ;
   string-char = ? any character except '"' and newline> ? ;
 */
 
-case class Program(print: Print)
+case class Program(lines: Seq[Line])
+case class Line(print: Print)
 case class Print(string: String)
 
 object Parser {
@@ -27,10 +31,16 @@ object Parser {
     def parse(in: BufferedReader): Program = program(in)
 
     def program(in: BufferedReader): Program = {
-        val s = in.readLine()
-        val s1 = stripSpaces(s)
-        val p: Print = stmPrint(s1)
-        Program(p)
+        val lines = new ListBuffer[Line]
+        var s: String = null
+        do {
+            s = in.readLine()
+            if(s != null) {
+                val l = line(s)
+                lines.append(l)
+            }
+        } while (s != null)
+        Program(lines)
     }
 
     // removes all spaces outside outside quotes
@@ -40,6 +50,12 @@ object Parser {
         .zipWithIndex
         .map{ case (s,i) => if(i%2==0) s.replaceAll(" ", "") else s }
         .mkString("\"")
+    }
+
+    def line(s: String): Line = {
+        val s1 = stripSpaces(s)
+        val p = stmPrint(s1)
+        Line(p)
     }
 
     val PRINT = "PRINT"
