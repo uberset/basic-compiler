@@ -8,7 +8,6 @@ import scala.collection.mutable.ListBuffer
   Author: uberset
   Date: 2015-11-09
   Licence: GPL v2
-
 */
 
 /*

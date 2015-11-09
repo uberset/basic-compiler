@@ -6,17 +6,16 @@ package uberset.basic_compiler
   Licence: GPL v2
 */
 
-object TestParser {
+object TestInterpreter {
 
     def main(args: Array[String]): Unit = {
         val results = Seq(
-            test("""PRINT"Hello World!"""", Program(Seq(Line(Print("Hello World!"))))),
-            test("""PRINT "Hello World!"""", Program(Seq(Line(Print("Hello World!"))))),
-            test(""" P R I N T "Hello World!" """, Program(Seq(Line(Print("Hello World!"))))),
+            test("""PRINT"Hello World!"""", "Hello World!\n"),
+            test("""PRINT "Hello World!"""", "Hello World!\n"),
+            test(""" P R I N T "Hello World!" """, "Hello World!\n"),
             test("""PRINT "Hello"
                    |PRINT "World!"""".stripMargin,
-                Program(Seq(Line(Print("Hello")),
-                            Line(Print("World!")))))
+                "Hello\nWorld!\n")
         )
         val tests = results.size
         val passed = results.filter(identity).size
@@ -27,10 +26,11 @@ object TestParser {
             println(s"All $tests tests passed.")
     }
 
-    def test(text: String, tree: Program): Boolean = {
+    def test(text: String, output: String): Boolean = {
         try {
             val prog = Parser.parse(text)
-            assertEquals(prog, tree)
+            val out = Interpreter.run(prog).toList.mkString
+            assertEquals(out, output)
         } catch {
             case e: Exception =>
                 println(e.getMessage)
