@@ -10,24 +10,47 @@ import scala.collection.mutable.ListBuffer
 
 object Interpreter {
 
+    case class Status(
+        lines: Seq[Line],
+        var lineIndex: Int = 0,
+        var running: Boolean = true,
+        out: ListBuffer[String] = new ListBuffer[String]
+    )
+
     def run(p: Program): Seq[String] = {
-        val out = new ListBuffer[String]
-        p match {
-            case Program(lines) => lines.foreach { line => run(line, out) }
-        }
-        out
+        val s = Status(p.lines)
+        while(s.running) run(s)
+        s.out
     }
 
-    def run(l: Line, out: ListBuffer[String]): Unit = {
-        l match {
-            case Line(nr, p) => run(p, out)
+    def run(s: Status): Unit = {
+        val line = s.lines(s.lineIndex)
+        runStm(line.stm, s)
+        s.lineIndex += 1
+        if(s.lineIndex >= s.lines.length) s.running = false
+    }
+
+    def runStm(stm: Statement, s: Status): Unit = {
+        stm match {
+            case stm: Print => run(stm, s)
+            case stm: Goto => run(stm, s)
         }
     }
 
-    def run(p: Print, out: ListBuffer[String]): Unit = {
-        p match {
-            case Print(str) => out.append(str, "\n")
+    def run(p: Print, s: Status): Unit = {
+        s.out.append(p.string, "\n")
+    }
+
+    def run(g: Goto, s: Status): Unit = {
+        val index =  findLineIndex(g.nr, s.lines)
+        s.lineIndex = index - 1
+    }
+
+    def findLineIndex(nr: Int, lines: Seq[Line]): Int = {
+        for(i <- 0 until lines.length) {
+            if(lines(i).nr == Some(nr)) return i
         }
+        throw new Exception(s"Line number $nr not found.")
     }
 
 }

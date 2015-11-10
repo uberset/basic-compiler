@@ -14,20 +14,26 @@ import scala.collection.mutable.ListBuffer
 // string = '"' string-char* '"' ;
 // string-char = ? any character except '"' and newline> ? ;
 // integer = digit+
-// digit = '0' ... '1'
+// digit = '0' ... '9'
 
 // program = line* ;
 case class Program(lines: Seq[Line])
 
-// line = [integer] print ;
-case class Line(nr: Option[Int], p: Print)
+// line = [integer] statement ;
+case class Line(nr: Option[Int], stm: Statement)
 object Line {
-    def apply(p: Print): Line = Line(None, p)
-    def apply(nr: Int, p: Print): Line = Line(Some(nr), p)
+    def apply(stm: Statement): Line = Line(None, stm)
+    def apply(nr: Int, stm: Statement): Line = Line(Some(nr), stm)
 }
 
+// statement = print | goto ;
+sealed abstract class Statement
+
 // print = 'PRINT' string ;
-case class Print(string: String)
+case class Print(string: String) extends Statement
+
+// goto = 'GOTO' integer ;
+case class Goto(nr: Int) extends Statement
 
 object Parser {
 
@@ -60,8 +66,16 @@ object Parser {
     def line(s: String): Line = {
         val s1 = stripSpaces(s)
         val (nr, rest) = tryInteger(s1)
-        val p = stmPrint(rest)
-        Line(nr, p)
+        val (stm, r1) = statement(rest)
+        if(!r1.isEmpty) fail(s"Unparsed text after statement: $r1")
+        Line(nr, stm)
+    }
+
+    def integer(s: String): (Int, String) = {
+        tryInteger(s) match {
+            case (Some(nr), rest) => (nr, rest)
+            case (None, rest) => fail(s"Integer is required at: '$s'")
+        }
     }
 
     def tryInteger(s: String): (Option[Int], String) = {
@@ -75,13 +89,25 @@ object Parser {
         }
     }
 
-    val PRINT = "PRINT"
+    def statement(s: String): (Statement, String) = {
+        if(s.startsWith(PRINT)) stmPrint(s)
+        else if(s.startsWith(GOTO)) stmGoto(s)
+        else fail(s"Statement expected at: $s")
+    }
 
-    def stmPrint(s: String): Print = {
+    val PRINT = "PRINT"
+    val GOTO = "GOTO"
+
+    def stmPrint(s: String): (Print, String) = {
         val s1 = require(PRINT, s)
         val (str, rest) = string(s1)
-        if(!rest.isEmpty) fail(s"Unparsed text after statement: $rest")
-        Print(str)
+        (Print(str), rest)
+    }
+
+    def stmGoto(s: String): (Goto, String) = {
+        val s1 = require(GOTO, s)
+        val (nr, rest) = integer(s1)
+        (Goto(nr), rest)
     }
 
     def string(s: String): (String, String) = {

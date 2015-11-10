@@ -16,9 +16,12 @@ object TestParser {
             test(""" P R I N T "Hello World!" """, Program(Seq(Line(Print("Hello World!"))))),
             test("""PRINT "Hello"
                    |PRINT "World!"""".stripMargin,
-                Program(Seq(Line(Print("Hello")),
+                 Program(Seq(Line(Print("Hello")),
                             Line(Print("World!"))))),
-            test("""10PRINT"Hello World!"""", Program(Seq(Line(10, Print("Hello World!")))))
+            test("""10PRINT"Hello World!"""", Program(Seq(Line(10, Print("Hello World!"))))),
+            test("""10 PRINT "Hello"
+                   |20 GO TO 10""".stripMargin,
+                 Program(Seq(Line(10, Print("Hello")), Line(20, Goto(10)))))
         )
         val tests = results.size
         val passed = results.filter(identity).size

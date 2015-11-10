@@ -16,7 +16,11 @@ object TestInterpreter {
             test(""" P R I N T "Hello World!" """, "Hello World!\n"),
             test("""PRINT "Hello"
                    |PRINT "World!"""".stripMargin,
-                 "Hello\nWorld!\n")
+                 "Hello\nWorld!\n"),
+            test("""10 GO TO 30
+                   |20 PRINT "SKIP ME 20"
+                   |30 PRINT "OK 30"""".stripMargin,
+                 "OK 30\n")
         )
         val tests = results.size
         val passed = results.filter(identity).size
