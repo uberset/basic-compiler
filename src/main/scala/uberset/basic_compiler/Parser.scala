@@ -10,17 +10,23 @@ import scala.collection.mutable.ListBuffer
   Licence: GPL v2
 */
 
-/*
-grammar:
-  program = line* ;
-  line = print ;
-  print = 'PRINT' string ;
-  string = '"' string-char* '"' ;
-  string-char = ? any character except '"' and newline> ? ;
-*/
 
+// string = '"' string-char* '"' ;
+// string-char = ? any character except '"' and newline> ? ;
+// integer = digit+
+// digit = '0' ... '1'
+
+// program = line* ;
 case class Program(lines: Seq[Line])
-case class Line(print: Print)
+
+// line = [integer] print ;
+case class Line(nr: Option[Int], p: Print)
+object Line {
+    def apply(p: Print): Line = Line(None, p)
+    def apply(nr: Int, p: Print): Line = Line(Some(nr), p)
+}
+
+// print = 'PRINT' string ;
 case class Print(string: String)
 
 object Parser {
@@ -53,8 +59,20 @@ object Parser {
 
     def line(s: String): Line = {
         val s1 = stripSpaces(s)
-        val p = stmPrint(s1)
-        Line(p)
+        val (nr, rest) = tryInteger(s1)
+        val p = stmPrint(rest)
+        Line(nr, p)
+    }
+
+    def tryInteger(s: String): (Option[Int], String) = {
+        val numStr = s.takeWhile(_.isDigit)
+        if(numStr.isEmpty) {
+            (None, s)
+        } else {
+            val num = numStr.toInt
+            val rest = s.substring(numStr.length)
+            (Some(num), rest)
+        }
     }
 
     val PRINT = "PRINT"

@@ -9,13 +9,14 @@ package uberset.basic_compiler
 object TestInterpreter {
 
     def main(args: Array[String]): Unit = {
+        println(this.getClass.getSimpleName)
         val results = Seq(
             test("""PRINT"Hello World!"""", "Hello World!\n"),
             test("""PRINT "Hello World!"""", "Hello World!\n"),
             test(""" P R I N T "Hello World!" """, "Hello World!\n"),
             test("""PRINT "Hello"
                    |PRINT "World!"""".stripMargin,
-                "Hello\nWorld!\n")
+                 "Hello\nWorld!\n")
         )
         val tests = results.size
         val passed = results.filter(identity).size

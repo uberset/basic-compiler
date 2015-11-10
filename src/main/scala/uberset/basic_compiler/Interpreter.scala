@@ -20,7 +20,7 @@ object Interpreter {
 
     def run(l: Line, out: ListBuffer[String]): Unit = {
         l match {
-            case Line(p) => run(p, out)
+            case Line(nr, p) => run(p, out)
         }
     }
 

@@ -9,6 +9,7 @@ package uberset.basic_compiler
 object TestParser {
 
     def main(args: Array[String]): Unit = {
+        println(this.getClass.getSimpleName)
         val results = Seq(
             test("""PRINT"Hello World!"""", Program(Seq(Line(Print("Hello World!"))))),
             test("""PRINT "Hello World!"""", Program(Seq(Line(Print("Hello World!"))))),
@@ -16,7 +17,8 @@ object TestParser {
             test("""PRINT "Hello"
                    |PRINT "World!"""".stripMargin,
                 Program(Seq(Line(Print("Hello")),
-                            Line(Print("World!")))))
+                            Line(Print("World!"))))),
+            test("""10PRINT"Hello World!"""", Program(Seq(Line(10, Print("Hello World!")))))
         )
         val tests = results.size
         val passed = results.filter(identity).size
