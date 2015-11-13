@@ -20,7 +20,16 @@ object TestInterpreter {
             test("""10 GO TO 30
                    |20 PRINT "SKIP ME 20"
                    |30 PRINT "OK 30"""".stripMargin,
-                 "OK 30\n")
+                 "OK 30\n"),
+            test("PRINT 5", "5\n"),
+            test("PRINT -2", "-2\n"),
+            test("PRINT 5+2", "7\n"),
+            test("PRINT 5-2", "3\n"),
+            test("PRINT 5*2", "10\n"),
+            test("PRINT 5/2", "2\n"),
+            test("PRINT X", "0\n"),
+            test("LET X=1\nPRINT X+1", "2\n"),
+            test("LET X=1\nPRINT X\nLET X=X+1\nPRINT X", "1\n2\n")
         )
         val tests = results.size
         val passed = results.filter(identity).size

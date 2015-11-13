@@ -6,6 +6,7 @@ package uberset.basic_compiler
   Licence: GPL v2
 */
 
+import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 object Interpreter {
@@ -14,7 +15,8 @@ object Interpreter {
         lines: Seq[Line],
         var lineIndex: Int = 0,
         var running: Boolean = true,
-        out: ListBuffer[String] = new ListBuffer[String]
+        variables: mutable.Map[String, Int] = mutable.HashMap[String, Int](),
+        out: ListBuffer[String] = ListBuffer[String]()
     )
 
     def run(p: Program): Seq[String] = {
@@ -34,11 +36,55 @@ object Interpreter {
         stm match {
             case stm: Print => run(stm, s)
             case stm: Goto => run(stm, s)
+            case stm: Let => run(stm, s)
         }
     }
 
+    def run(l: Let, s: Status): Unit = {
+        val Let(id, expr) = l
+        val v = evalExpr(expr, s)
+        s.variables.put(id, v)
+    }
+
     def run(p: Print, s: Status): Unit = {
-        s.out.append(p.string, "\n")
+        s.out.append(evalPrintArg(p.arg, s), "\n")
+    }
+
+    def evalPrintArg(arg: PrintArgument, s: Status): String = {
+        arg match {
+            case StringArg(s) => s
+            case expr: Expression => evalExpr(expr, s).toString
+        }
+    }
+
+    def evalExpr(expr: Expression, s: Status): Int = {
+        expr match {
+            case v: Value => evalValue(v, s)
+            case uop: UnOperation =>  evalUnOp(uop, s)
+            case bop: BinOperation => evalBinOp(bop, s)
+        }
+    }
+
+    def evalUnOp(uop: UnOperation, s: Status): Int = {
+        uop match {
+            case Neg(i) => - evalValue(i, s)
+        }
+    }
+
+    def evalBinOp(bop: BinOperation, s: Status): Int = {
+        bop match {
+            case Add(v1, v2) => evalValue(v1, s) + evalValue(v2, s)
+            case Sub(v1, v2) => evalValue(v1, s) - evalValue(v2, s)
+            case Mul(v1, v2) => evalValue(v1, s) * evalValue(v2, s)
+            case Div(v1, v2) => evalValue(v1, s) / evalValue(v2, s)
+        }
+    }
+
+    def evalValue(v: Value, s: Status): Int = {
+        v match {
+            case IntValue(i) => i
+            case Variable(id) => s.variables.getOrElse(id, 0)
+        }
     }
 
     def run(g: Goto, s: Status): Unit = {
