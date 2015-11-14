@@ -1,6 +1,6 @@
 # basic-compiler
 
-A simple compiler for simple subset of Dartmouth BASIC implemented in Scala.
+A simple compiler for a simple subset of Dartmouth BASIC implemented in Scala.
 
 It is work in progress.
 
