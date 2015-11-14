@@ -10,5 +10,6 @@ object TestAll {
     def main(args: Array[String]): Unit = {
         TestParser.main(args)
         TestInterpreter.main(args)
+        backend.TestGenerator86.main(args)
     }
 }
