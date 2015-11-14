@@ -13,14 +13,15 @@ object Interpreter {
 
     case class Status(
         lines: Seq[Line],
+        var in: List[String],
         var lineIndex: Int = 0,
         var running: Boolean = true,
         variables: mutable.Map[String, Int] = mutable.HashMap[String, Int](),
         out: ListBuffer[String] = ListBuffer[String]()
     )
 
-    def run(p: Program): Seq[String] = {
-        val s = Status(p.lines)
+    def run(p: Program, in: List[String]): Seq[String] = {
+        val s = Status(p.lines, in)
         while(s.running) run(s)
         s.out
     }
@@ -39,7 +40,16 @@ object Interpreter {
             case stm: Let => run(stm, s)
             case stm: If => run(stm, s)
             case stm: Rem => ()
+            case stm: Input => run(stm, s)
         }
+    }
+
+    def run(input: Input, s: Status): Unit = {
+        val id = input.variable
+        val string = s.in.head
+        val v = string.toInt
+        s.in = s.in.tail
+        s.variables.put(id, v)
     }
 
     def evalCond(c: Condition, s: Status): Boolean = {

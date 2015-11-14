@@ -36,7 +36,8 @@ object TestParser {
             test("IF 1<=2 THEN 99", Program(Seq(Line(If(Condition(IntValue(1),LE(),IntValue(2)),99))))),
             test("IF 1>=2 THEN 99", Program(Seq(Line(If(Condition(IntValue(1),GE(),IntValue(2)),99))))),
             test("IF 1<>2 THEN 99", Program(Seq(Line(If(Condition(IntValue(1),NE(),IntValue(2)),99))))),
-            test("REM Don't ignore me. I'm important.", Program(Seq(Line(Rem()))))
+            test("REM Don't ignore me. I'm important.", Program(Seq(Line(Rem())))),
+            test("INPUT X", Program(Seq(Line(Input("X")))))
         )
         val tests = results.size
         val passed = results.filter(identity).size

@@ -19,8 +19,11 @@ case class Program(lines: Seq[Line])
 
 // line = [integer] statement ;
 case class Line(nr: Option[Int], stm: Statement)
-// statement = print | goto | let | if | rem ;
+// statement = print | goto | let | if | rem | input ;
 sealed abstract class Statement
+
+// input = 'INPUT' variable ;
+case class Input(variable: String) extends Statement
 
 // rem = 'REM' comment-text ;
 case class Rem() extends Statement

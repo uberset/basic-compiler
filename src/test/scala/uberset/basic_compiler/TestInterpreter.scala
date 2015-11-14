@@ -48,7 +48,8 @@ object TestInterpreter {
                    |120   IF I <= N THEN 100
                    |140 PRINT F""".stripMargin,
                  "Fibonacci number of\n7\nis\n5040\n"),
-            test("REM Don't ignore me. I'm important.", "")
+            test("REM Don't ignore me. I'm important.", ""),
+            test("INPUT X\nPRINT X*X", "42\n", "1764\n")
         )
         val tests = results.size
         val passed = results.filter(identity).size
@@ -60,9 +61,14 @@ object TestInterpreter {
     }
 
     def test(text: String, output: String): Boolean = {
+        test(text, "", output)
+    }
+
+    def test(text: String, input: String, output: String): Boolean = {
         try {
             val prog = Parser.parse(text)
-            val out = Interpreter.run(prog).mkString
+            val in = input.split('\n').toList
+            val out = Interpreter.run(prog, in).mkString
             assertEquals(out, output)
         } catch {
             case e: Exception =>

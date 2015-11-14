@@ -71,6 +71,7 @@ object Parser {
         else if(s.startsWith(LET)) stmLet(s)
         else if(s.startsWith(IF)) stmIf(s)
         else if(s.startsWith(REM)) stmRem(s)
+        else if(s.startsWith(INPUT)) stmInput(s)
         else fail(s"Statement expected at: $s")
     }
 
@@ -80,6 +81,13 @@ object Parser {
     val IF = "IF"
     val THEN = "THEN"
     val REM = "REM"
+    val INPUT = "INPUT"
+
+    def stmInput(s: String): (Input, String) = {
+        val s1 = require(INPUT, s)
+        val (id, rest) = variable(s1)
+        (Input(id), rest)
+    }
 
     def stmRem(s: String): (Rem, String) = {
         val rest = require(REM, s)
