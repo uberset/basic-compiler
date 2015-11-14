@@ -37,7 +37,26 @@ object Interpreter {
             case stm: Print => run(stm, s)
             case stm: Goto => run(stm, s)
             case stm: Let => run(stm, s)
+            case stm: If => run(stm, s)
         }
+    }
+
+    def evalCond(c: Condition, s: Status): Boolean = {
+        val Condition(e1, op, e2) = c
+        op match {
+            case LT() => evalExpr(e1, s) < evalExpr(e2, s)
+            case GT() => evalExpr(e1, s) > evalExpr(e2, s)
+            case EQ() => evalExpr(e1, s) == evalExpr(e2, s)
+            case NE() => evalExpr(e1, s) != evalExpr(e2, s)
+            case LE() => evalExpr(e1, s) <= evalExpr(e2, s)
+            case GE() => evalExpr(e1, s) >= evalExpr(e2, s)
+        }
+    }
+
+    def run(i: If, s: Status): Unit = {
+        val If(c, nr) = i
+        val v = evalCond(c, s)
+        if(v) goto(nr, s)
     }
 
     def run(l: Let, s: Status): Unit = {
@@ -87,8 +106,10 @@ object Interpreter {
         }
     }
 
-    def run(g: Goto, s: Status): Unit = {
-        val index =  findLineIndex(g.nr, s.lines)
+    def run(g: Goto, s: Status): Unit = goto(g.nr, s)
+
+    def goto(nr: Int, s: Status): Unit = {
+        val index =  findLineIndex(nr, s.lines)
         s.lineIndex = index - 1
     }
 

@@ -29,7 +29,13 @@ object TestParser {
             test("PRINT X0", Program(Seq(Line(Print(Variable("X0")))))),
             test("PRINT X0+1", Program(Seq(Line(Print(Add(Variable("X0"),IntValue(1))))))),
             test("LET X=0", Program(Seq(Line(Let("X",IntValue(0)))))),
-            test("LET X=X+1", Program(Seq(Line(Let("X",Add(Variable("X"),IntValue(1)))))))
+            test("LET X=X+1", Program(Seq(Line(Let("X",Add(Variable("X"),IntValue(1))))))),
+            test("IF 1=2 THEN 99", Program(Seq(Line(If(Condition(IntValue(1),EQ(),IntValue(2)),99))))),
+            test("IF 1<2 THEN 99", Program(Seq(Line(If(Condition(IntValue(1),LT(),IntValue(2)),99))))),
+            test("IF 1>2 THEN 99", Program(Seq(Line(If(Condition(IntValue(1),GT(),IntValue(2)),99))))),
+            test("IF 1<=2 THEN 99", Program(Seq(Line(If(Condition(IntValue(1),LE(),IntValue(2)),99))))),
+            test("IF 1>=2 THEN 99", Program(Seq(Line(If(Condition(IntValue(1),GE(),IntValue(2)),99))))),
+            test("IF 1<>2 THEN 99", Program(Seq(Line(If(Condition(IntValue(1),NE(),IntValue(2)),99)))))
         )
         val tests = results.size
         val passed = results.filter(identity).size

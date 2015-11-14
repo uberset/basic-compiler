@@ -22,8 +22,23 @@ case class Program(lines: Seq[Line])
 
 // line = [integer] statement ;
 case class Line(nr: Option[Int], stm: Statement)
-// statement = print | goto | let ;
+// statement = print | goto | let | if ;
 sealed abstract class Statement
+
+// if = 'IF' condition 'THEN' integer ;
+case class If(cond: Condition, line: Int) extends Statement
+
+// condition = expression relop expression ;
+case class Condition(expr1: Expression, op: RelOp, expr2: Expression)
+
+// relop = ( '=' | '<' | '>' | '<=' | '>=' | '<>' ) ,
+sealed abstract class RelOp
+case class EQ() extends RelOp
+case class LT() extends RelOp
+case class GT() extends RelOp
+case class LE() extends RelOp
+case class GE() extends RelOp
+case class NE() extends RelOp
 
 // let = 'LET' variable '=' expression ;
 case class Let(variable: String, expression: Expression) extends Statement
@@ -119,12 +134,41 @@ object Parser {
         if(s.startsWith(PRINT)) stmPrint(s)
         else if(s.startsWith(GOTO)) stmGoto(s)
         else if(s.startsWith(LET)) stmLet(s)
+        else if(s.startsWith(IF)) stmIf(s)
         else fail(s"Statement expected at: $s")
     }
 
     val PRINT = "PRINT"
     val GOTO = "GOTO"
     val LET = "LET"
+    val IF = "IF"
+    val THEN = "THEN"
+
+    def stmIf(s: String): (If, String) = {
+        val s1 = require(IF, s)
+        val (c, s2) = condition(s1)
+        val s3 = require(THEN, s2)
+        val (nr, s4) = integer(s3)
+        (If(c, nr), s4)
+
+    }
+
+    def condition(s: String): (Condition, String) = {
+        val (e1, s1) = expression(s)
+        val (op, s2) = relOp(s1)
+        val (e2, s3) = expression(s2)
+        (Condition(e1, op, e2), s3)
+    }
+
+    def relOp(s: String): (RelOp, String) = {
+        if(s.startsWith("<>")) (NE(), s.substring(2))
+        else if(s.startsWith(">=")) (GE(), s.substring(2))
+        else if(s.startsWith("<=")) (LE(), s.substring(2))
+        else if(s.startsWith(">")) (GT(), s.substring(1))
+        else if(s.startsWith("<")) (LT(), s.substring(1))
+        else if(s.startsWith("=")) (EQ(), s.substring(1))
+        else fail("Relational operation expected at: $s")
+    }
 
     def stmLet(s: String): (Let, String) = {
         val s1 = require(LET, s)

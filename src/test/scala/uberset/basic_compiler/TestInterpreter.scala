@@ -29,7 +29,25 @@ object TestInterpreter {
             test("PRINT 5/2", "2\n"),
             test("PRINT X", "0\n"),
             test("LET X=1\nPRINT X+1", "2\n"),
-            test("LET X=1\nPRINT X\nLET X=X+1\nPRINT X", "1\n2\n")
+            test("LET X=1\nPRINT X\nLET X=X+1\nPRINT X", "1\n2\n"),
+            test("IF 1<2 THEN 10\nPRINT \"false\"\nGOTO 20\n10 PRINT \"true\"\n20LET X=X", "true\n"),
+            test("IF 1>2 THEN 10\nPRINT \"false\"\nGOTO 20\n10 PRINT \"true\"\n20LET X=X", "false\n"),
+            test("IF 1=2 THEN 10\nPRINT \"false\"\nGOTO 20\n10 PRINT \"true\"\n20LET X=X", "false\n"),
+            test("IF 1<=2 THEN 10\nPRINT \"false\"\nGOTO 20\n10 PRINT \"true\"\n20LET X=X", "true\n"),
+            test("IF 1>=2 THEN 10\nPRINT \"false\"\nGOTO 20\n10 PRINT \"true\"\n20LET X=X", "false\n"),
+            test("IF 1<>2 THEN 10\nPRINT \"false\"\nGOTO 20\n10 PRINT \"true\"\n20LET X=X", "true\n"),
+            test(""" 10 LET N = 7
+                   | 20 PRINT "Fibonacci number of"
+                   | 30 PRINT N
+                   | 40 PRINT "is"
+                   | 70 LET F = 1
+                   | 80 IF N < 1 THEN 140
+                   | 90   LET I = 1
+                   |100   LET F = F * I
+                   |110   LET I = I + 1
+                   |120   IF I <= N THEN 100
+                   |140 PRINT F""".stripMargin,
+                 "Fibonacci number of\n7\nis\n5040\n")
         )
         val tests = results.size
         val passed = results.filter(identity).size
