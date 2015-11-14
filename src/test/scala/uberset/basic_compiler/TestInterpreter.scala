@@ -47,7 +47,8 @@ object TestInterpreter {
                    |110   LET I = I + 1
                    |120   IF I <= N THEN 100
                    |140 PRINT F""".stripMargin,
-                 "Fibonacci number of\n7\nis\n5040\n")
+                 "Fibonacci number of\n7\nis\n5040\n"),
+            test("REM Don't ignore me. I'm important.", "")
         )
         val tests = results.size
         val passed = results.filter(identity).size

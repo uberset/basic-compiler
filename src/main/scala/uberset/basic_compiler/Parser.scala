@@ -13,6 +13,8 @@ import scala.collection.mutable.ListBuffer
 
 // string = '"' string-char* '"' ;
 // string-char = ? any character except '"' and newline> ? ;
+// comment-text = comment-char* ;
+// comment-char = ? any character except newline> ? ;
 // integer = digit+
 // digit = '0' ... '9'
 // letter = 'A' ... 'Z'
@@ -22,8 +24,11 @@ case class Program(lines: Seq[Line])
 
 // line = [integer] statement ;
 case class Line(nr: Option[Int], stm: Statement)
-// statement = print | goto | let | if ;
+// statement = print | goto | let | if | rem ;
 sealed abstract class Statement
+
+// rem = 'REM' comment-text ;
+case class Rem() extends Statement
 
 // if = 'IF' condition 'THEN' integer ;
 case class If(cond: Condition, line: Int) extends Statement
@@ -135,6 +140,7 @@ object Parser {
         else if(s.startsWith(GOTO)) stmGoto(s)
         else if(s.startsWith(LET)) stmLet(s)
         else if(s.startsWith(IF)) stmIf(s)
+        else if(s.startsWith(REM)) stmRem(s)
         else fail(s"Statement expected at: $s")
     }
 
@@ -143,6 +149,13 @@ object Parser {
     val LET = "LET"
     val IF = "IF"
     val THEN = "THEN"
+    val REM = "REM"
+
+    def stmRem(s: String): (Rem, String) = {
+        val rest = require(REM, s)
+        // ignore the rest
+        (Rem(), "")
+    }
 
     def stmIf(s: String): (If, String) = {
         val s1 = require(IF, s)

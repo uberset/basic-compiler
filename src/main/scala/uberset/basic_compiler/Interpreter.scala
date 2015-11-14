@@ -38,6 +38,7 @@ object Interpreter {
             case stm: Goto => run(stm, s)
             case stm: Let => run(stm, s)
             case stm: If => run(stm, s)
+            case stm: Rem => ()
         }
     }
 
