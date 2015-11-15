@@ -18,7 +18,9 @@ object TestGenerator86 {
         val results = Seq(
             test("empty.asm", ""),
             test("hello.asm", "PRINT \"Hello World!\""),
-            test("hello2.asm", "10 PRINT \"Hello\"\n20 PRINT \"World!\"")
+            test("hello2.asm", "10 PRINT \"Hello\"\n20 PRINT \"World!\""),
+            test("print1.asm", "PRINT 1"),
+            test("print2.asm", "PRINT 32767")
         )
         val tests = results.size
         val passed = results.filter(identity).size

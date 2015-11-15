@@ -2,6 +2,51 @@
 		mov ax,0x4c00
 		int 0x21
 
+puti:	; put a signed integer (16 bit) to stdout
+		; int in AX
+		; AX, BX, CX, DX will be modified
+		call int2decimal	; returns pointer to string in bx
+		call puts
+		ret
+
+int2decimal:
+		; convert a signed integer (16 bit) to a buffer
+		; int in AX
+		; AX, BX, CX, DX will be modified
+		; buffer: CX
+		; divisor: BX
+		mov dl, '+'	; sign
+		cmp	ax,0
+		jge .unsigned
+		neg ax
+		mov dl, '-'
+.unsigned:
+		mov bx, .buffer
+		mov [bx], dl	; sign
+		mov cx, .endbuf-2
+.next:	mov dx, 0
+		mov bx, 10
+		div bx	; ax = (dx, ax) / bx
+				; dx = remainder
+		mov bx, cx
+		add dl, '0'
+		mov [bx], dl	; digit
+		dec cx
+		cmp ax, 0
+		jne .next
+		; move sign if necessary
+		; BX points to the first digit now
+		mov dl, [.buffer]	; sign '+' or '-'
+		cmp dl, '-'
+		jne .end	; no '-'
+		dec bx
+		mov [bx], dl	; copy sign
+.end:	ret
+section .data
+.buffer	db		"-", "12345", 0
+.endbuf:
+section .text
+
 puts:	; put a string to stdout
 		; string start address in BX
 		; string must be terminated with null

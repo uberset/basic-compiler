@@ -1,18 +1,8 @@
 		org 100h
-L10:
-section .data
-T0:	db	"Hello",0
-section .text
-		mov bx, T0
-		call puts
-		call putln
-L20:
-section .data
-T1:	db	"World!",0
-section .text
-		mov bx, T1
-		call puts
-		call putln
+		mov ax, 1
+		push ax
+		pop ax
+		call puti
 		mov ax,0x4c00
 		int 0x21
 
