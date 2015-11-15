@@ -16,7 +16,9 @@ object TestGenerator86 {
     def main(args: Array[String]): Unit = {
         println(this.getClass.getSimpleName)
         val results = Seq(
-            test("empty.asm", "")
+            test("empty.asm", ""),
+            test("hello.asm", "PRINT \"Hello World!\""),
+            test("hello2.asm", "10 PRINT \"Hello\"\n20 PRINT \"World!\"")
         )
         val tests = results.size
         val passed = results.filter(identity).size

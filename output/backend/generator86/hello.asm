@@ -1,4 +1,10 @@
 		org 100h
+section .data
+T0:	db	"Hello World!",0
+section .text
+		mov bx, T0
+		call puts
+		call putln
 		mov ax,0x4c00
 		int 0x21
 
