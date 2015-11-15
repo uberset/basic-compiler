@@ -52,7 +52,33 @@ object Generator86 {
             case stm: Print => stmPrint(stm, s)
             case stm: Let   => stmLet  (stm, s)
             case stm: Goto  => stmGoto (stm, s)
+            case stm: If    => stmIf   (stm, s)
         }
+    }
+
+    def stmIf(stm: If, s: Status): Unit = {
+        val Condition(a, rel, b) = stm.cond
+        val nr = stm.line
+
+        val opcode = rel match {
+            case EQ() => "je"
+            case NE() => "jne"
+            case GT() => "jgt"
+            case LT() => "jlt"
+            case GE() => "jge"
+            case LE() => "jle"
+        }
+        val lbl = s"LINE_$nr"
+
+        evalExpression(a, s)
+        evalExpression(b, s)
+        // pop values from stack, cmp them and jump on condition
+        s.out.append(
+            "\t\tpop bx\n",
+            "\t\tpop ax\n",
+            "\t\tcmp ax, bx\n",
+            s"\t\t$opcode $lbl\n"
+        )
     }
 
     def stmGoto(go: Goto, s: Status): Unit = {
@@ -87,8 +113,8 @@ object Generator86 {
     def printInteger(s: Status): Unit = {
         // pop int from stack and print it
         s.out.append(
-        "\t\tpop ax\n",
-        "\t\tcall puti\n"
+            "\t\tpop ax\n",
+            "\t\tcall puti\n"
         )
     }
 
