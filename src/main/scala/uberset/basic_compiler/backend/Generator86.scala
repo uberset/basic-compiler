@@ -53,6 +53,7 @@ object Generator86 {
             case stm: Let   => stmLet  (stm, s)
             case stm: Goto  => stmGoto (stm, s)
             case stm: If    => stmIf   (stm, s)
+            case stm: Rem   => ()
         }
     }
 
