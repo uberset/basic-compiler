@@ -50,9 +50,15 @@ object Generator86 {
     def statement(stm: Statement, s: Status): Unit = {
         stm match {
             case stm: Print => stmPrint(stm, s)
-            case stm: Let   =>   stmLet(stm, s)
-            case _ => ???
+            case stm: Let   => stmLet  (stm, s)
+            case stm: Goto  => stmGoto (stm, s)
         }
+    }
+
+    def stmGoto(go: Goto, s: Status): Unit = {
+        val nr = go.nr
+        val lbl = s"LINE_$nr"
+        s.out.append(s"\t\tjmp $lbl\n")
     }
 
     def stmLet(let: Let, s: Status): Unit = {

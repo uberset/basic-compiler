@@ -27,7 +27,8 @@ object TestGenerator86 {
             test("div.asm", "PRINT \"5/2=\"\nPRINT 5/2\n"),
             test("neg.asm", "PRINT \"-5=\"\nPRINT -5\n"),
             test("var.asm", "PRINT X"),
-            test("sdiv.asm", "LET X=-1\nPRINT \"-1/-1=\"\nPRINT X/X\n")
+            test("sdiv.asm", "LET X=-1\nPRINT \"-1/-1=\"\nPRINT X/X\n"),
+            test("goto1.asm", "10 PRINT \"Hello\"\n20 GO TO 10")
         )
         val tests = results.size
         val passed = results.filter(identity).size
