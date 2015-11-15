@@ -14,6 +14,7 @@ LINE_10:
 		push ax
 		pop ax
 		call puti
+		call putln
 		mov ax, [VAR_I]
 		push ax
 		mov ax, 1

@@ -23,6 +23,7 @@ section .text
 		push ax
 		pop ax
 		call puti
+		call putln
 		mov ax,0x4c00
 		int 0x21
 

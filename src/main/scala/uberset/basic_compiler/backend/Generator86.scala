@@ -114,7 +114,8 @@ object Generator86 {
         // pop int from stack and print it
         s.out.append(
             "\t\tpop ax\n",
-            "\t\tcall puti\n"
+            "\t\tcall puti\n",
+            "\t\tcall putln\n"
         )
     }
 
