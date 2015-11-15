@@ -18,8 +18,9 @@ import scala.collection.mutable.ListBuffer
 object Generator86 {
 
     case class Status(
-        var dataCount: Int = 0,
-        out: ListBuffer[String] = ListBuffer[String]()
+         var dataCount: Int = 0,
+         var varNames: Set[String] = Set(),
+         out: ListBuffer[String] = ListBuffer[String]()
     )
 
     def generate(p: Program): Seq[String] = {
@@ -28,6 +29,7 @@ object Generator86 {
         programm(p, s)
         end(s)
         library(s)
+        vars(s)
         s.out
     }
 
@@ -47,9 +49,21 @@ object Generator86 {
 
     def statement(stm: Statement, s: Status): Unit = {
         stm match {
-            case p :Print => stmPrint(p, s)
+            case stm: Print => stmPrint(stm, s)
+            case stm: Let   =>   stmLet(stm, s)
             case _ => ???
         }
+    }
+
+    def stmLet(let: Let, s: Status): Unit = {
+        val Let(id, expr) = let
+        evalExpression(expr, s) // push value on stack
+        // pop value from stack and store in variable
+        s.out.append(
+            "\t\tpop ax\n",
+            s"\t\tmov [VAR_$id], ax\n"
+        )
+        s.varNames = s.varNames + id
     }
 
     def stmPrint(prt: Print, s: Status): Unit = {
@@ -148,7 +162,17 @@ object Generator86 {
     def evalValue(v: Value, s: Status): Unit = {
         v match {
             case IntValue(i) => evalInt(i, s)
+            case Variable(id) => evalVar(id, s)
         }
+    }
+
+    def evalVar(id: String, s: Status): Unit = {
+        // read variable from data section and push the value to the stack
+        s.out.append(
+            s"\t\tmov ax, [VAR_$id]\n",
+            "\t\tpush ax\n"
+        )
+        s.varNames = s.varNames + id
     }
 
     def evalInt(i: Int, s: Status): Unit = {
@@ -177,6 +201,18 @@ object Generator86 {
             "section .text\n"
         )
         lbl
+    }
+
+    def vars(s: Status) = {
+        if(!s.varNames.isEmpty) {
+            // define all used variables in the data section
+            s.out.append("section .data\n")
+            for (id <- s.varNames) {
+                val lbl = "VAR_" + id + ":"
+                s.out.append(s"$lbl\t\tdw 0\n")
+            }
+            s.out.append("section .text\n")
+        }
     }
 
     def library(s: Status) = {

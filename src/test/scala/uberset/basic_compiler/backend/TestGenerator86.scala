@@ -25,9 +25,9 @@ object TestGenerator86 {
             test("sub.asm", "PRINT \"5-2=\"\nPRINT 5-2\n"),
             test("mul.asm", "PRINT \"5*2=\"\nPRINT 5*2\n"),
             test("div.asm", "PRINT \"5/2=\"\nPRINT 5/2\n"),
-            test("neg.asm", "PRINT \"-5=\"\nPRINT -5\n")
-            //test("var.asm", "PRINT X"),
-            //test("sdiv.asm", "LET X=-1\nPRINT \"-1/-1=\"\nPRINT X/X\n")
+            test("neg.asm", "PRINT \"-5=\"\nPRINT -5\n"),
+            test("var.asm", "PRINT X"),
+            test("sdiv.asm", "LET X=-1\nPRINT \"-1/-1=\"\nPRINT X/X\n")
         )
         val tests = results.size
         val passed = results.filter(identity).size
