@@ -75,7 +75,74 @@ object Generator86 {
     def evalExpression(expr: Expression, s: Status): Unit = {
         expr match {
             case v: Value => evalValue(v, s)
+            case b: BinOperation => evalBop(b, s)
+            case b: UnOperation  => evalUop(b, s)
         }
+    }
+
+    def evalUop(uop: UnOperation, s: Status): Unit = {
+        uop match {
+            case Neg(a) => evalValue(a, s); neg(s)
+        }
+    }
+
+    def neg(s: Status): Unit = {
+        // pop value from stack, neg it, push result to stack
+        s.out.append(
+            "\t\tpop ax\n",
+            "\t\tneg ax\n",
+            "\t\tpush ax\n"
+        )
+    }
+
+    def evalBop(bop: BinOperation, s: Status): Unit = {
+        bop match {
+            case Add(a, b) => evalValue(a, s); evalValue(b, s); add(s)
+            case Sub(a, b) => evalValue(a, s); evalValue(b, s); sub(s)
+            case Mul(a, b) => evalValue(a, s); evalValue(b, s); mul(s)
+            case Div(a, b) => evalValue(a, s); evalValue(b, s); div(s)
+        }
+    }
+
+    def div(s: Status): Unit = {
+        // pop values from stack, div them, push result to stack
+        s.out.append(
+            "\t\tpop bx\n",
+            "\t\tpop ax\n",
+            "\t\tcwd\n",     // sign extension from AX into DX
+            "\t\tidiv bx\n", // AX = (DX AX) / BX
+            "\t\tpush ax\n"
+        )
+    }
+
+    def mul(s: Status): Unit = {
+        // pop values from stack, mul them, push result to stack
+        s.out.append(
+            "\t\tpop bx\n",
+            "\t\tpop ax\n",
+            "\t\timul ax, bx\n",
+            "\t\tpush ax\n"
+        )
+    }
+
+    def sub(s: Status): Unit = {
+        // pop values from stack, sub them, push result to stack
+        s.out.append(
+            "\t\tpop bx\n",
+            "\t\tpop ax\n",
+            "\t\tsub ax, bx\n",
+            "\t\tpush ax\n"
+        )
+    }
+
+    def add(s: Status): Unit = {
+        // pop values from stack, add them, push result to stack
+        s.out.append(
+            "\t\tpop bx\n",
+            "\t\tpop ax\n",
+            "\t\tadd ax, bx\n",
+            "\t\tpush ax\n"
+        )
     }
 
     def evalValue(v: Value, s: Status): Unit = {

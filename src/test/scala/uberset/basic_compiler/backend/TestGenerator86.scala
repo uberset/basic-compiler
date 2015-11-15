@@ -20,7 +20,14 @@ object TestGenerator86 {
             test("hello.asm", "PRINT \"Hello World!\""),
             test("hello2.asm", "10 PRINT \"Hello\"\n20 PRINT \"World!\""),
             test("print1.asm", "PRINT 1"),
-            test("print2.asm", "PRINT 32767")
+            test("print2.asm", "PRINT 32767"),
+            test("add.asm", "PRINT \"5+2=\"\nPRINT 5+2\n"),
+            test("sub.asm", "PRINT \"5-2=\"\nPRINT 5-2\n"),
+            test("mul.asm", "PRINT \"5*2=\"\nPRINT 5*2\n"),
+            test("div.asm", "PRINT \"5/2=\"\nPRINT 5/2\n"),
+            test("neg.asm", "PRINT \"-5=\"\nPRINT -5\n")
+            //test("var.asm", "PRINT X"),
+            //test("sdiv.asm", "LET X=-1\nPRINT \"-1/-1=\"\nPRINT X/X\n")
         )
         val tests = results.size
         val passed = results.filter(identity).size
