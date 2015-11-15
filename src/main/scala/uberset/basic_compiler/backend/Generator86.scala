@@ -42,7 +42,7 @@ object Generator86 {
     def line(lin: Line, s: Status): Unit = {
         val Line(nrOption, stm) = lin
         nrOption.map{ nr: Int =>
-            s.out.append(s"L$nr:\n") // linenumber as label
+            s.out.append(s"LINE_$nr:\n") // linenumber as label
         }
         statement(stm, s)
     }
