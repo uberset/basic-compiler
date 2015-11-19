@@ -98,6 +98,69 @@ putln:	; put CR LF to stdout
 		mov bx, .line
 		jmp puts
 .line:	db 0x0A, 0x0D, 0
-section .data
+
+getsbuff:
+		; get string from stdin
+		; max size len + 1 (CR)
+		; out bx: startaddress
+		; user can edit text
+		; uses ax, bx, dx
+		mov bx, .buff
+		mov dx, bx
+		mov ah, 0ah
+		int 21h
+		mov al, [bx+1]	; actual length
+		add al, 2		; offset
+		xor ah, ah		; 0
+		add bx, ax
+		mov [bx], byte 0; terminate string
+		mov bx, .buff+2	; string start address
+		ret
+section	.data
+.len 	equ 80
+.buff:	db .len+1	; max size (including CR)
+		db 0		; actual size
+times .len db 0		; the string
+		db 0		; CR (or 0)
+section .text
+
+string2int:
+		; convert string to signed int (16-bit)
+		; regexp: [+-]?[0..9]*
+		; BX: string addr
+        ; result in AX
+		; CH: sign
+		; CL: char
+		; changes BX
+		mov ax, 0	; accu
+		mov ch, 0	; sign
+		mov cl, [bx]
+		inc bx
+		cmp cl, '+'
+		je .next
+		cmp cl, '-'
+		jne .digits
+		mov ch, -1
+.next:	mov cl, [bx]
+		inc bx
+.digits:
+		cmp cl, '0'
+		jl .sign
+		cmp cl, '9'
+		jg .sign
+		mov dx, 10
+		mul dx
+		sub cl, '0'
+		mov dl, cl
+		xor dh, dh
+		add ax, dx
+		jmp .next
+.sign:	cmp ch, 0	; sign
+		jge .end
+		neg ax
+.end:	ret
+
+
+            section .data
 VAR_I:		dw 0
 section .text
