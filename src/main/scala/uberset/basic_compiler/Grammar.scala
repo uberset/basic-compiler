@@ -50,31 +50,33 @@ case class Let(variable: String, expression: Expression) extends Statement
 case class Print(arg: PrintArgument) extends Statement
 
 // printargument = string | expression ;
-sealed abstract class PrintArgument
+trait PrintArgument
 case class StringArg(string: String) extends PrintArgument
 
-// expression = binoperation | unoperation | value ;
-sealed abstract class Expression extends PrintArgument
+// expression = ['-'|'+'] term (addoperation term)* ;
+case class Expression(negation: Boolean, term: Term, ops: List[(AddOp, Term)]) extends Factor with PrintArgument
 
-// value = intvalue | variable ;
-sealed abstract class Value extends Expression
+// term = factor (muloperation factor)* ;
+case class Term(factor: Factor, ops: List[(MulOp, Factor)])
+
+// factor = intvalue | variable | "(" expression ")" ;
+sealed abstract class Factor
 
 // intvalue = integer ;
-case class IntValue(value: Int) extends Value
+case class IntValue(value: Int) extends Factor
 
 // variable = letter digit? ;
-case class Variable(name: String) extends Value
+case class Variable(name: String) extends Factor
 
-// binoperation = value ( '+' | '-' | '*' | '/' ) value ;
-sealed abstract class BinOperation extends Expression
-case class Add(v1: Value, v2: Value) extends BinOperation
-case class Sub(v1: Value, v2: Value) extends BinOperation
-case class Mul(v1: Value, v2: Value) extends BinOperation
-case class Div(v1: Value, v2: Value) extends BinOperation
+// addoperation = ( '+' | '-'  ) ;
+sealed abstract class AddOp
+case class Add() extends AddOp
+case class Sub() extends AddOp
 
-// unoperation = '-' value ;
-sealed abstract class UnOperation extends Expression
-case class Neg(v: Value) extends UnOperation
+// muloperation = ( '*' | '/' ) ;
+sealed abstract class MulOp
+case class Mul() extends MulOp
+case class Div() extends MulOp
 
 // goto = 'GOTO' integer ;
 case class Goto(nr: Int) extends Statement
@@ -87,4 +89,16 @@ object Line {
 
 object Print {
     def apply(string: String): Print = Print(StringArg(string))
+}
+
+object Expression {
+    def apply(term: Term, list: List[(AddOp, Term)]): Expression = Expression(true, term, list)
+    def apply(term: Term): Expression = Expression(false, term, List())
+    def apply(neg: Boolean, term: Term): Expression = Expression(neg, term, List())
+    def apply(t1: Term, op: AddOp, t2: Term): Expression = Expression(false, t1, List((op, t2)))
+    def apply(neg: Boolean, t1: Term, op: AddOp, t2: Term): Expression = Expression(neg, t1, List((op, t2)))
+}
+
+object Term {
+    def apply(factor: Factor): Term = Term(factor, List())
 }

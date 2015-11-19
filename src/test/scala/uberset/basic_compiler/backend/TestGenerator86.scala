@@ -31,7 +31,9 @@ object TestGenerator86 {
             test("goto1.asm", "10 PRINT \"Hello\"\n20 GO TO 10"),
             test("if1.asm", "LET I=1\n10 PRINT I*I\nLET I=I+1\nIF I<=5 THEN 10\n"),
             test("rem1.asm", "REM do nothing\n"),
-            test("input.asm", "INPUT X\nPRINT X+1")
+            test("input.asm", "INPUT X\nPRINT X+1"),
+            test("expression.asm", "PRINT \"-3+4*(5+6)*7+8-9=\"\nPRINT -3+4*(5+6)*7+8-9")
+
         )
         val tests = results.size
         val passed = results.filter(identity).size

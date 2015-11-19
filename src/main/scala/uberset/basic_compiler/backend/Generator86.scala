@@ -133,16 +133,39 @@ object Generator86 {
     }
 
     def evalExpression(expr: Expression, s: Status): Unit = {
-        expr match {
-            case v: Value => evalValue(v, s)
-            case b: BinOperation => evalBop(b, s)
-            case b: UnOperation  => evalUop(b, s)
+        val Expression(ng, term, ops) = expr
+        evalTerm(term, s)
+        if(ng) neg(s)
+        for((op, t) <- ops) evalTerm(op, t, s)
+    }
+
+    def evalTerm(op: AddOp, t: Term, s: Status): Unit = {
+        evalTerm(t, s)
+        op match {
+            case Add() => add(s)
+            case Sub() => sub(s)
         }
     }
 
-    def evalUop(uop: UnOperation, s: Status): Unit = {
-        uop match {
-            case Neg(a) => evalValue(a, s); neg(s)
+    def evalTerm(term: Term, s: Status): Unit = {
+        val Term(factor, ops) = term
+        evalFactor(factor, s)
+        for((op, f) <- ops) evalFactor(op, f, s)
+    }
+
+    def evalFactor(op: MulOp, f: Factor, s: Status): Unit = {
+        evalFactor(f, s)
+        op match {
+            case Mul() => mul(s)
+            case Div() => div(s)
+        }
+    }
+
+    def evalFactor(factor: Factor, s: Status): Unit = {
+        factor match {
+            case IntValue(i) => evalInt(i, s)
+            case Variable(id) => evalVar(id, s)
+            case expr: Expression => evalExpression(expr, s)
         }
     }
 
@@ -153,15 +176,6 @@ object Generator86 {
             "\t\tneg ax\n",
             "\t\tpush ax\n"
         )
-    }
-
-    def evalBop(bop: BinOperation, s: Status): Unit = {
-        bop match {
-            case Add(a, b) => evalValue(a, s); evalValue(b, s); add(s)
-            case Sub(a, b) => evalValue(a, s); evalValue(b, s); sub(s)
-            case Mul(a, b) => evalValue(a, s); evalValue(b, s); mul(s)
-            case Div(a, b) => evalValue(a, s); evalValue(b, s); div(s)
-        }
     }
 
     def div(s: Status): Unit = {
@@ -203,13 +217,6 @@ object Generator86 {
             "\t\tadd ax, bx\n",
             "\t\tpush ax\n"
         )
-    }
-
-    def evalValue(v: Value, s: Status): Unit = {
-        v match {
-            case IntValue(i) => evalInt(i, s)
-            case Variable(id) => evalVar(id, s)
-        }
     }
 
     def evalVar(id: String, s: Status): Unit = {

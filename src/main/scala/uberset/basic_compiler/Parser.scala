@@ -141,45 +141,69 @@ object Parser {
     }
 
     def expression(s: String): (Expression, String) = {
-        if(!s.isEmpty && s.charAt(0) == '-') {
-            neg(s)
-        } else {
-            val (v, rest) = value(s)
-            tryBinopRight(v, rest)
-        }
+        val neg = !s.isEmpty && s.charAt(0) == '-'
+        val s1 = if(neg) s.substring(1) else s
+        val (t, s2) = term(s1)
+        val (ops, s3) = opTerms(s2)
+        (Expression(neg, t, ops), s3)
     }
 
-    // returns v1 or (v1 op v2)
-    def tryBinopRight(v1: Value, s: String): (Expression, String) = {
+    def opTerms(s: String): (List[(AddOp, Term)], String) = {
         if(!s.isEmpty) {
             val c = s.charAt(0)
             c match {
-                case '+' | '-' | '*' | '/' => binOperation(v1, c, value(s.substring(1)))
-                case _ => (v1, s)
+                case '+' | '-'  => {
+                    val op = addOperation(c)
+                    val (t, s1) = term(s.substring(1))
+                    val (list, rest) = opTerms(s1)
+                    ((op, t) +: list, rest)
+                }
+                case _ => (List(), s)
             }
         } else {
-            (v1, s)
+            (List(), s)
         }
     }
 
-    def binOperation(v1: Value, c: Char, tuple: (Value, String)): (BinOperation, String) = {
-        val (v2, rest) = tuple
-        c match {
-            case '+' => (Add(v1, v2), rest)
-            case '-' => (Sub(v1, v2), rest)
-            case '*' => (Mul(v1, v2), rest)
-            case '/' => (Div(v1, v2), rest)
+    def addOperation(c: Char): AddOp = c match {
+        case '+' => Add()
+        case '-' => Sub()
+    }
+
+    def term(s: String): (Term, String) = {
+        val (f, s1) = factor(s)
+        val (ops, s2) = opFactors(s1)
+        (Term(f, ops), s2)
+    }
+
+    def opFactors(s: String): (List[(MulOp, Factor)], String) = {
+        if(!s.isEmpty) {
+            val c = s.charAt(0)
+            c match {
+                case '*' | '/'  => {
+                    val op = mulOperation(c)
+                    val (f, s1) = factor(s.substring(1))
+                    val (list, rest) = opFactors(s1)
+                    ((op, f) +: list, rest)
+                }
+                case _ => (List(), s)
+            }
+        } else {
+            (List(), s)
         }
     }
 
-    def neg(s: String): (Neg, String) = {
-        val s1 = require('-', s)
-        val (v, rest) = value(s1)
-        (Neg(v), rest)
+    def mulOperation(c: Char): MulOp = c match {
+        case '*' => Mul()
+        case '/' => Div()
     }
 
-    def value(s: String): (Value, String) = {
-        if(!s.isEmpty && s.charAt(0).isDigit) {
+    def factor(s: String): (Factor, String) = {
+        if(!s.isEmpty && s.charAt(0) == '(') {
+            val (expr, s1) = expression(s.substring(1))
+            val rest = require(')', s1)
+            (expr, rest)
+        } else if(!s.isEmpty && s.charAt(0).isDigit) {
             val (i, rest) = integer(s)
             (IntValue(i), rest)
         } else {

@@ -22,22 +22,30 @@ object TestParser {
             test("""10 PRINT "Hello"
                    |20 GO TO 10""".stripMargin,
                  Program(Seq(Line(10, Print("Hello")), Line(20, Goto(10))))),
-            test("PRINT 1", Program(Seq(Line(Print(IntValue(1)))))),
-            test("PRINT -1", Program(Seq(Line(Print(Neg(IntValue(1))))))),
-            test("PRINT X", Program(Seq(Line(Print(Variable("X")))))),
-            test("PRINT -X", Program(Seq(Line(Print(Neg(Variable("X"))))))),
-            test("PRINT X0", Program(Seq(Line(Print(Variable("X0")))))),
-            test("PRINT X0+1", Program(Seq(Line(Print(Add(Variable("X0"),IntValue(1))))))),
-            test("LET X=0", Program(Seq(Line(Let("X",IntValue(0)))))),
-            test("LET X=X+1", Program(Seq(Line(Let("X",Add(Variable("X"),IntValue(1))))))),
-            test("IF 1=2 THEN 99", Program(Seq(Line(If(Condition(IntValue(1),EQ(),IntValue(2)),99))))),
-            test("IF 1<2 THEN 99", Program(Seq(Line(If(Condition(IntValue(1),LT(),IntValue(2)),99))))),
-            test("IF 1>2 THEN 99", Program(Seq(Line(If(Condition(IntValue(1),GT(),IntValue(2)),99))))),
-            test("IF 1<=2 THEN 99", Program(Seq(Line(If(Condition(IntValue(1),LE(),IntValue(2)),99))))),
-            test("IF 1>=2 THEN 99", Program(Seq(Line(If(Condition(IntValue(1),GE(),IntValue(2)),99))))),
-            test("IF 1<>2 THEN 99", Program(Seq(Line(If(Condition(IntValue(1),NE(),IntValue(2)),99))))),
+            test("PRINT 1", Program(Seq(Line(Print(Expression(Term(IntValue(1)))))))),
+            test("PRINT -1", Program(Seq(Line(Print(Expression(true,Term(IntValue(1)))))))),
+            test("PRINT X", Program(Seq(Line(Print(Expression(Term(Variable("X")))))))),
+            test("PRINT -X", Program(Seq(Line(Print(Expression(true,Term(Variable("X")))))))),
+            test("PRINT X0", Program(Seq(Line(Print(Expression(Term(Variable("X0")))))))),
+            test("PRINT X0+1", Program(Seq(Line(Print(Expression(Term(Variable("X0")),Add(),Term(IntValue(1)))))))),
+            test("LET X=0", Program(Seq(Line(Let("X",Expression(Term(IntValue(0)))))))),
+            test("LET X=X+1", Program(Seq(Line(Let("X",Expression(Term(Variable("X")),Add(),Term(IntValue(1)))))))),
+            test("IF 1=2 THEN 99", Program(Seq(Line(If(Condition(Expression(Term(IntValue(1))),EQ(),Expression(Term(IntValue(2)))),99))))),
+            test("IF 1<2 THEN 99", Program(Seq(Line(If(Condition(Expression(Term(IntValue(1))),LT(),Expression(Term(IntValue(2)))),99))))),
+            test("IF 1>2 THEN 99", Program(Seq(Line(If(Condition(Expression(Term(IntValue(1))),GT(),Expression(Term(IntValue(2)))),99))))),
+            test("IF 1<=2 THEN 99", Program(Seq(Line(If(Condition(Expression(Term(IntValue(1))),LE(),Expression(Term(IntValue(2)))),99))))),
+            test("IF 1>=2 THEN 99", Program(Seq(Line(If(Condition(Expression(Term(IntValue(1))),GE(),Expression(Term(IntValue(2)))),99))))),
+            test("IF 1<>2 THEN 99", Program(Seq(Line(If(Condition(Expression(Term(IntValue(1))),NE(),Expression(Term(IntValue(2)))),99))))),
             test("REM Don't ignore me. I'm important.", Program(Seq(Line(Rem())))),
-            test("INPUT X", Program(Seq(Line(Input("X")))))
+            test("INPUT X", Program(Seq(Line(Input("X"))))),
+            test("PRINT -3+4*(5+6)*7+8-9", Program(Seq(Line(Print(Expression(
+                Term(IntValue(3)),List(
+                    (Add(),Term(IntValue(4),List(
+                        (Mul(),Expression(Term(IntValue(5)),Add(),Term(IntValue(6)))),
+                        (Mul(),IntValue(7))
+                    ))),
+                    (Add(),Term(IntValue(8))), (Sub(),Term(IntValue(9)))
+                )))))))
         )
         val tests = results.size
         val passed = results.filter(identity).size

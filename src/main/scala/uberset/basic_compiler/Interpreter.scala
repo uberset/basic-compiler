@@ -88,32 +88,41 @@ object Interpreter {
     }
 
     def evalExpr(expr: Expression, s: Status): Int = {
-        expr match {
-            case v: Value => evalValue(v, s)
-            case uop: UnOperation =>  evalUnOp(uop, s)
-            case bop: BinOperation => evalBinOp(bop, s)
+        val Expression(neg, term, ops) = expr
+        var v = evalTerm(term, s)
+        if(neg) v = (-v)
+        for((op, t) <- ops) v = evalTerm(v, op, t, s)
+        v
+    }
+
+    def evalTerm(v: Int, op: AddOp, t: Term, s: Status): Int = {
+        val v2 = evalTerm(t, s)
+        op match {
+            case Add() => v + v2
+            case Sub() => v - v2
         }
     }
 
-    def evalUnOp(uop: UnOperation, s: Status): Int = {
-        uop match {
-            case Neg(i) => - evalValue(i, s)
+    def evalTerm(term: Term, s: Status): Int = {
+        val Term(factor, ops) = term
+        var v = evalFactor(factor, s)
+        for((op, f) <- ops) v = evalFactor(v, op, f, s)
+        v
+    }
+
+    def evalFactor(v: Int, op: MulOp, f: Factor, s: Status): Int = {
+        val v2 = evalFactor(f, s)
+        op match {
+            case Mul() => v * v2
+            case Div() => v / v2
         }
     }
 
-    def evalBinOp(bop: BinOperation, s: Status): Int = {
-        bop match {
-            case Add(v1, v2) => evalValue(v1, s) + evalValue(v2, s)
-            case Sub(v1, v2) => evalValue(v1, s) - evalValue(v2, s)
-            case Mul(v1, v2) => evalValue(v1, s) * evalValue(v2, s)
-            case Div(v1, v2) => evalValue(v1, s) / evalValue(v2, s)
-        }
-    }
-
-    def evalValue(v: Value, s: Status): Int = {
-        v match {
+    def evalFactor(factor: Factor, s: Status): Int = {
+        factor match {
             case IntValue(i) => i
             case Variable(id) => s.variables.getOrElse(id, 0)
+            case expr: Expression => evalExpr(expr, s)
         }
     }
 

@@ -49,7 +49,8 @@ object TestInterpreter {
                    |140 PRINT F""".stripMargin,
                  "Fibonacci number of\n7\nis\n5040\n"),
             test("REM Don't ignore me. I'm important.", ""),
-            test("INPUT X\nPRINT X*X", "42\n", "1764\n")
+            test("INPUT X\nPRINT X*X", "42\n", "1764\n"),
+            test("PRINT -3+4*(5+6)*7+8-9","304\n")
         )
         val tests = results.size
         val passed = results.filter(identity).size
@@ -72,7 +73,8 @@ object TestInterpreter {
             assertEquals(out, output)
         } catch {
             case e: Exception =>
-                println(e.getMessage)
+                println(e.toString)
+                e.printStackTrace()
                 false
         }
     }
