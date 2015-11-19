@@ -19,7 +19,7 @@ case class Program(lines: Seq[Line])
 
 // line = [integer] statement ;
 case class Line(nr: Option[Int], stm: Statement)
-// statement = print | goto | let | if | rem | input ;
+// statement = print | goto | gosub | return | let | if | rem | input ;
 sealed abstract class Statement
 
 // input = 'INPUT' variable ;
@@ -80,6 +80,12 @@ case class Div() extends MulOp
 
 // goto = 'GOTO' integer ;
 case class Goto(nr: Int) extends Statement
+
+// gosub = 'GOSUB' integer ;
+case class Gosub(nr: Int) extends Statement
+
+// return = 'RETURN' ;
+case class Return() extends Statement
 
 
 object Line {

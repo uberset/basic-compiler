@@ -45,7 +45,9 @@ object TestParser {
                         (Mul(),IntValue(7))
                     ))),
                     (Add(),Term(IntValue(8))), (Sub(),Term(IntValue(9)))
-                )))))))
+                ))))))),
+            test("GOSUB 100", Program(Seq(Line(Gosub(100))))),
+            test("RETURN", Program(Seq(Line(Return()))))
         )
         val tests = results.size
         val passed = results.filter(identity).size

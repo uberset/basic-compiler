@@ -68,6 +68,8 @@ object Parser {
     def statement(s: String): (Statement, String) = {
         if(s.startsWith(PRINT)) stmPrint(s)
         else if(s.startsWith(GOTO)) stmGoto(s)
+        else if(s.startsWith(GOSUB)) stmGosub(s)
+        else if(s.startsWith(RETURN)) stmReturn(s)
         else if(s.startsWith(LET)) stmLet(s)
         else if(s.startsWith(IF)) stmIf(s)
         else if(s.startsWith(REM)) stmRem(s)
@@ -77,6 +79,8 @@ object Parser {
 
     val PRINT = "PRINT"
     val GOTO = "GOTO"
+    val GOSUB = "GOSUB"
+    val RETURN = "RETURN"
     val LET = "LET"
     val IF = "IF"
     val THEN = "THEN"
@@ -242,6 +246,17 @@ object Parser {
         val s1 = require(GOTO, s)
         val (nr, rest) = integer(s1)
         (Goto(nr), rest)
+    }
+
+    def stmGosub(s: String): (Gosub, String) = {
+        val s1 = require(GOSUB, s)
+        val (nr, rest) = integer(s1)
+        (Gosub(nr), rest)
+    }
+
+    def stmReturn(s: String): (Return, String) = {
+        val rest = require(RETURN, s)
+        (Return(), rest)
     }
 
     def string(s: String): (String, String) = {

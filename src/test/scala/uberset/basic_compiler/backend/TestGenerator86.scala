@@ -32,8 +32,16 @@ object TestGenerator86 {
             test("if1.asm", "LET I=1\n10 PRINT I*I\nLET I=I+1\nIF I<=5 THEN 10\n"),
             test("rem1.asm", "REM do nothing\n"),
             test("input.asm", "INPUT X\nPRINT X+1"),
-            test("expression.asm", "PRINT \"-3+4*(5+6)*7+8-9=\"\nPRINT -3+4*(5+6)*7+8-9")
-
+            test("expression.asm", "PRINT \"-3+4*(5+6)*7+8-9=\"\nPRINT -3+4*(5+6)*7+8-9"),
+            test("gosubre.asm",
+                 """GOSUB 100
+                   |GOSUB 100
+                   |GOSUB 100
+                   |GOTO 999
+                   |100 PRINT "Hello!"
+                   |RETURN
+                   |999 REM END
+                   |""".stripMargin)
         )
         val tests = results.size
         val passed = results.filter(identity).size
@@ -52,7 +60,8 @@ object TestGenerator86 {
             true
         } catch {
             case e: Exception =>
-                println(e.getMessage)
+                println(e.toString)
+                e.printStackTrace()
                 false
         }
     }

@@ -49,12 +49,14 @@ object Generator86 {
 
     def statement(stm: Statement, s: Status): Unit = {
         stm match {
-            case stm: Print => stmPrint(stm, s)
-            case stm: Let   => stmLet  (stm, s)
-            case stm: Goto  => stmGoto (stm, s)
-            case stm: If    => stmIf   (stm, s)
-            case stm: Rem   => ()
-            case stm: Input => stmInput(stm, s)
+            case stm: Print  => stmPrint (stm, s)
+            case stm: Let    => stmLet   (stm, s)
+            case stm: Goto   => stmGoto  (stm, s)
+            case stm: Gosub  => stmGosub (stm, s)
+            case stm: Return => stmReturn(stm, s)
+            case stm: If     => stmIf    (stm, s)
+            case stm: Rem    => ()
+            case stm: Input  => stmInput (stm, s)
         }
     }
 
@@ -92,6 +94,16 @@ object Generator86 {
             "\t\tcmp ax, bx\n",
             s"\t\t$opcode $lbl\n"
         )
+    }
+
+    def stmReturn(ret: Return, s: Status): Unit = {
+        s.out.append(s"\t\tret\n")
+    }
+
+    def stmGosub(go: Gosub, s: Status): Unit = {
+        val nr = go.nr
+        val lbl = s"LINE_$nr"
+        s.out.append(s"\t\tcall $lbl\n")
     }
 
     def stmGoto(go: Goto, s: Status): Unit = {

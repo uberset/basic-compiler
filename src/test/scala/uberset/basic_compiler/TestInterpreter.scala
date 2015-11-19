@@ -50,7 +50,17 @@ object TestInterpreter {
                  "Fibonacci number of\n7\nis\n5040\n"),
             test("REM Don't ignore me. I'm important.", ""),
             test("INPUT X\nPRINT X*X", "42\n", "1764\n"),
-            test("PRINT -3+4*(5+6)*7+8-9","304\n")
+            test("PRINT -3+4*(5+6)*7+8-9","304\n"),
+            test("""GOSUB 100
+                   |GOSUB 100
+                   |GOSUB 100
+                   |GOTO 999
+                   |100 PRINT "Hello!"
+                   |RETURN
+                   |999 REM END
+                   |""".stripMargin,
+                 "Hello!\n" * 3)
+
         )
         val tests = results.size
         val passed = results.filter(identity).size

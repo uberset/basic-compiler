@@ -17,6 +17,7 @@ object Interpreter {
         var lineIndex: Int = 0,
         var running: Boolean = true,
         variables: mutable.Map[String, Int] = mutable.HashMap[String, Int](),
+        stack: mutable.Stack[Int] = mutable.Stack[Int](),
         out: ListBuffer[String] = ListBuffer[String]()
     )
 
@@ -37,6 +38,8 @@ object Interpreter {
         stm match {
             case stm: Print => run(stm, s)
             case stm: Goto => run(stm, s)
+            case stm: Gosub => run(stm, s)
+            case stm: Return => run(stm, s)
             case stm: Let => run(stm, s)
             case stm: If => run(stm, s)
             case stm: Rem => ()
@@ -124,6 +127,15 @@ object Interpreter {
             case Variable(id) => s.variables.getOrElse(id, 0)
             case expr: Expression => evalExpr(expr, s)
         }
+    }
+
+    def run(g: Return, s: Status): Unit = {
+        s.lineIndex = s.stack.pop()
+    }
+
+    def run(g: Gosub, s: Status): Unit = {
+        s.stack.push(s.lineIndex)
+        goto(g.nr, s)
     }
 
     def run(g: Goto, s: Status): Unit = goto(g.nr, s)
