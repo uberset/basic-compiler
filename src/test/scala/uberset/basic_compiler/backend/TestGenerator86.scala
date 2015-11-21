@@ -44,9 +44,9 @@ object TestGenerator86 {
                    |""".stripMargin),
             test("array.asm",
                  """DIM A(32463)
-                   |LET A(32592) = -1
+                   |LET A(32463) = -1
                    |INPUT A(0)
-                   |PRINT A(32592)
+                   |PRINT A(32463)
                    |PRINT A(0)
                    |PRINT A(1)
                    |""".stripMargin)

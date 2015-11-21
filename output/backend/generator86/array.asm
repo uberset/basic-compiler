@@ -7,7 +7,7 @@ section .text
 		pop ax
 		neg ax
 		push ax
-		mov ax, 32592
+		mov ax, 32463
 		push ax
 		pop si
 		pop ax
@@ -21,7 +21,7 @@ section .text
 		pop ax
 		mov [ARR_A+si], ax
 		call putln
-		mov ax, 32592
+		mov ax, 32463
 		push ax
 		pop si
 		mov ax, [ARR_A+si]
