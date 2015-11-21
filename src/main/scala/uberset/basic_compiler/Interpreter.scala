@@ -17,6 +17,7 @@ object Interpreter {
         var lineIndex: Int = 0,
         var running: Boolean = true,
         variables: mutable.Map[String, Int] = mutable.HashMap[String, Int](),
+        arrays: mutable.Map[String, Array[Int]] = mutable.HashMap[String, Array[Int]](),
         stack: mutable.Stack[Int] = mutable.Stack[Int](),
         out: ListBuffer[String] = ListBuffer[String]()
     )
@@ -44,15 +45,24 @@ object Interpreter {
             case stm: If => run(stm, s)
             case stm: Rem => ()
             case stm: Input => run(stm, s)
+            case stm: Dim => run(stm, s)
+        }
+    }
+
+    def run(dim: Dim, s: Status): Unit = {
+        val Dim(id, upper) = dim
+        s.arrays.get(id) match {
+            case Some(_) => fail(s"Array $id was already dimensioned.")
+            case None => s.arrays.put(id, new Array[Int](upper+1))
         }
     }
 
     def run(input: Input, s: Status): Unit = {
-        val id = input.variable
+        val vari = input.variable
         val string = s.in.head
-        val v = string.toInt
+        val valu = string.toInt
         s.in = s.in.tail
-        s.variables.put(id, v)
+        setVariable(vari, valu, s)
     }
 
     def evalCond(c: Condition, s: Status): Boolean = {
@@ -74,9 +84,9 @@ object Interpreter {
     }
 
     def run(l: Let, s: Status): Unit = {
-        val Let(id, expr) = l
-        val v = evalExpr(expr, s)
-        s.variables.put(id, v)
+        val Let(vari, expr) = l
+        val valu = evalExpr(expr, s)
+        setVariable(vari, valu, s)
     }
 
     def run(p: Print, s: Status): Unit = {
@@ -124,8 +134,44 @@ object Interpreter {
     def evalFactor(factor: Factor, s: Status): Int = {
         factor match {
             case IntValue(i) => i
-            case Variable(id) => s.variables.getOrElse(id, 0)
+            case v: Variable => evalVariable(v, s)
             case expr: Expression => evalExpr(expr, s)
+        }
+    }
+
+    def evalVariable(v: Variable, s: Status): Int = {
+        val Variable(id, sub) = v
+        s.arrays.get(id) match {
+            // array found
+            case Some(values) =>
+                sub match {
+                    case Some(expr) => values(evalExpr(expr, s))
+                    case None => fail(s"Subscript for array $id expected.").asInstanceOf[Int] // the compiler complains without cast :(
+                }
+            // array not found
+            case None =>
+                sub match {
+                    case Some(expr) => fail(s"Array $id must be dimensioned.").asInstanceOf[Int] // the compiler complains without cast :(
+                    case None => s.variables.getOrElse(id, 0)
+                }
+        }
+    }
+
+    def setVariable(v: Variable, value: Int, s: Status): Unit = {
+        val Variable(id, sub) = v
+        s.arrays.get(id) match {
+            // array found
+            case Some(values) =>
+                sub match {
+                    case Some(expr) => values(evalExpr(expr, s)) = value
+                    case None => fail(s"Subscript for array $id expected.")
+                }
+            // array not found
+            case None =>
+                sub match {
+                    case Some(expr) => fail(s"Array $id must be dimensioned.")
+                    case None => s.variables.put(id, value)
+                }
         }
     }
 
@@ -152,4 +198,7 @@ object Interpreter {
         throw new Exception(s"Line number $nr not found.")
     }
 
+    def fail(msg: String): Null = {
+        throw new Exception(msg)
+    }
 }

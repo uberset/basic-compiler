@@ -10,20 +10,25 @@ package uberset.basic_compiler
 // string-char = ? any character except '"' and newline> ? ;
 // comment-text = comment-char* ;
 // comment-char = ? any character except newline> ? ;
-// integer = digit+
-// digit = '0' ... '9'
-// letter = 'A' ... 'Z'
+// integer = digit+ ;
+// digit = '0' ... '9' ;
+// letter = 'A' ... 'Z' ;
+// identifier = letter digit? ;
+
 
 // program = line* ;
 case class Program(lines: Seq[Line])
 
 // line = [integer] statement ;
 case class Line(nr: Option[Int], stm: Statement)
-// statement = print | goto | gosub | return | let | if | rem | input ;
+// statement = print | goto | gosub | return | let | if | rem | input | dim ;
 sealed abstract class Statement
 
+// dim = 'DIM' identifier '(' integer ')' ;
+case class Dim(variable: String, upper: Int) extends Statement
+
 // input = 'INPUT' variable ;
-case class Input(variable: String) extends Statement
+case class Input(variable: Variable) extends Statement
 
 // rem = 'REM' comment-text ;
 case class Rem() extends Statement
@@ -44,7 +49,7 @@ case class GE() extends RelOp
 case class NE() extends RelOp
 
 // let = 'LET' variable '=' expression ;
-case class Let(variable: String, expression: Expression) extends Statement
+case class Let(variable: Variable, expression: Expression) extends Statement
 
 // print = 'PRINT' printargument ;
 case class Print(arg: PrintArgument) extends Statement
@@ -65,8 +70,8 @@ sealed abstract class Factor
 // intvalue = integer ;
 case class IntValue(value: Int) extends Factor
 
-// variable = letter digit? ;
-case class Variable(name: String) extends Factor
+// variable = identifier ( '(' expression ')' ) ;
+case class Variable(name: String, subscript: Option[Expression]) extends Factor
 
 // addoperation = ( '+' | '-'  ) ;
 sealed abstract class AddOp
@@ -107,4 +112,9 @@ object Expression {
 
 object Term {
     def apply(factor: Factor): Term = Term(factor, List())
+}
+
+object Variable {
+    def apply(name: String): Variable = Variable(name, None)
+    def apply(name: String, expression: Expression): Variable = Variable(name, Some(expression))
 }

@@ -74,6 +74,7 @@ object Parser {
         else if(s.startsWith(IF)) stmIf(s)
         else if(s.startsWith(REM)) stmRem(s)
         else if(s.startsWith(INPUT)) stmInput(s)
+        else if(s.startsWith(DIM)) stmDim(s)
         else fail(s"Statement expected at: $s")
     }
 
@@ -86,6 +87,16 @@ object Parser {
     val THEN = "THEN"
     val REM = "REM"
     val INPUT = "INPUT"
+    val DIM = "DIM"
+
+    def stmDim(s: String): (Dim, String) = {
+        val s1 = require(DIM, s)
+        val (id, s2) = identifier(s1)
+        val s3 = require('(', s2)
+        val (upper, s4) = integer(s3)
+        val rest = require(')', s4)
+        (Dim(id, upper), rest)
+    }
 
     def stmInput(s: String): (Input, String) = {
         val s1 = require(INPUT, s)
@@ -123,6 +134,16 @@ object Parser {
         else if(s.startsWith("<")) (LT(), s.substring(1))
         else if(s.startsWith("=")) (EQ(), s.substring(1))
         else fail("Relational operation expected at: $s")
+    }
+
+    def trySubscript(s: String): (Option[Expression], String) = {
+        if(!s.isEmpty && s.charAt(0) == '(') {
+            val (expr, s1) = expression(s.substring(1))
+            require(')', s1)
+            (Some(expr), s1.substring(1))
+        } else {
+            (None, s)
+        }
     }
 
     def stmLet(s: String): (Let, String) = {
@@ -212,17 +233,23 @@ object Parser {
             (IntValue(i), rest)
         } else {
             val (v, rest) = variable(s)
-            (Variable(v), rest)
+            (v, rest)
         }
     }
 
-    def variable(s: String): (String, String) = {
+    def identifier(s: String): (String, String) = {
         val (l, rest) = letter(s)
         val (d, rest1) = tryDigit(rest)
         d match {
             case Some(c) => (List(l,  c).mkString, rest1)
             case None    => (l.toString, rest)
         }
+    }
+
+    def variable(s: String): (Variable, String) = {
+        val (name, s1) = identifier(s)
+        val (sub, rest) = trySubscript(s1)
+        (Variable(name, sub), rest)
     }
 
     def tryDigit(s: String): (Option[Char], String) = {

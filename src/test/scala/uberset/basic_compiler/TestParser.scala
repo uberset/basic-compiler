@@ -28,8 +28,8 @@ object TestParser {
             test("PRINT -X", Program(Seq(Line(Print(Expression(true,Term(Variable("X")))))))),
             test("PRINT X0", Program(Seq(Line(Print(Expression(Term(Variable("X0")))))))),
             test("PRINT X0+1", Program(Seq(Line(Print(Expression(Term(Variable("X0")),Add(),Term(IntValue(1)))))))),
-            test("LET X=0", Program(Seq(Line(Let("X",Expression(Term(IntValue(0)))))))),
-            test("LET X=X+1", Program(Seq(Line(Let("X",Expression(Term(Variable("X")),Add(),Term(IntValue(1)))))))),
+            test("LET X=0", Program(Seq(Line(Let(Variable("X"),Expression(Term(IntValue(0)))))))),
+            test("LET X=X+1", Program(Seq(Line(Let(Variable("X"),Expression(Term(Variable("X")),Add(),Term(IntValue(1)))))))),
             test("IF 1=2 THEN 99", Program(Seq(Line(If(Condition(Expression(Term(IntValue(1))),EQ(),Expression(Term(IntValue(2)))),99))))),
             test("IF 1<2 THEN 99", Program(Seq(Line(If(Condition(Expression(Term(IntValue(1))),LT(),Expression(Term(IntValue(2)))),99))))),
             test("IF 1>2 THEN 99", Program(Seq(Line(If(Condition(Expression(Term(IntValue(1))),GT(),Expression(Term(IntValue(2)))),99))))),
@@ -37,7 +37,7 @@ object TestParser {
             test("IF 1>=2 THEN 99", Program(Seq(Line(If(Condition(Expression(Term(IntValue(1))),GE(),Expression(Term(IntValue(2)))),99))))),
             test("IF 1<>2 THEN 99", Program(Seq(Line(If(Condition(Expression(Term(IntValue(1))),NE(),Expression(Term(IntValue(2)))),99))))),
             test("REM Don't ignore me. I'm important.", Program(Seq(Line(Rem())))),
-            test("INPUT X", Program(Seq(Line(Input("X"))))),
+            test("INPUT X", Program(Seq(Line(Input(Variable("X")))))),
             test("PRINT -3+4*(5+6)*7+8-9", Program(Seq(Line(Print(Expression(
                 Term(IntValue(3)),List(
                     (Add(),Term(IntValue(4),List(
@@ -47,7 +47,21 @@ object TestParser {
                     (Add(),Term(IntValue(8))), (Sub(),Term(IntValue(9)))
                 ))))))),
             test("GOSUB 100", Program(Seq(Line(Gosub(100))))),
-            test("RETURN", Program(Seq(Line(Return()))))
+            test("RETURN", Program(Seq(Line(Return())))),
+            test("""DIM A(32767)
+                   |LET A(32767) = -1
+                   |INPUT A(0)
+                   |PRINT A(32767)
+                   |PRINT A(0)
+                   |""".stripMargin,
+                Program(Seq(
+                    Line(Dim("A",32767)),
+                    Line(Let(Variable("A",Expression(Term(IntValue(32767)))),
+                             Expression(true,Term(IntValue(1))))),
+                    Line(Input(Variable("A",Expression(Term(IntValue(0)))))),
+                    Line(Print(Expression(Term(Variable("A",Expression(Term(IntValue(32767)))))))),
+                    Line(Print(Expression(Term(Variable("A",Expression(Term(IntValue(0))))))))
+                )))
         )
         val tests = results.size
         val passed = results.filter(identity).size

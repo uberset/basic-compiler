@@ -57,18 +57,31 @@ object Generator86 {
             case stm: If     => stmIf    (stm, s)
             case stm: Rem    => ()
             case stm: Input  => stmInput (stm, s)
+            case stm: Dim    => stmDim   (stm, s)
         }
     }
 
+    def stmDim(dim: Dim, s: Status): Unit = {
+        val Dim(id, upper) = dim
+        val lbl = "ARR_" + id + ":"
+        s.out.append(
+            "section .data\n",
+            s"$lbl\t\ttimes ${upper+1} dw 0\n",
+            "section .text\n"
+        )
+    }
+
     def stmInput(inp: Input, s: Status): Unit = {
-        val id = inp.variable
+        val vari = inp.variable
         s.out.append(
             "\t\tcall getsbuff\n",
             "\t\tcall string2int\n",
-            s"\t\tmov [VAR_$id], ax\n",
+            "\t\tpush ax\n"
+        )
+        setVari(vari, s)
+        s.out.append(
             "\t\tcall putln\n"
         )
-        s.varNames = s.varNames + id
     }
 
     def stmIf(stm: If, s: Status): Unit = {
@@ -113,14 +126,29 @@ object Generator86 {
     }
 
     def stmLet(let: Let, s: Status): Unit = {
-        val Let(id, expr) = let
+        val Let(vari, expr) = let
         evalExpression(expr, s) // push value on stack
         // pop value from stack and store in variable
-        s.out.append(
-            "\t\tpop ax\n",
-            s"\t\tmov [VAR_$id], ax\n"
-        )
-        s.varNames = s.varNames + id
+        setVari(vari, s)
+    }
+
+    def setVari(vari: Variable, s: Status): Unit = {
+        // pop value from stack and store in variable
+        vari match {
+            case Variable(id, None) =>
+                s.out.append(
+                    "\t\tpop ax\n",
+                    s"\t\tmov [VAR_$id], ax\n"
+                )
+                s.varNames = s.varNames + id
+            case Variable(id, Some(expr)) =>
+                evalExpression(expr, s)
+                s.out.append(
+                    "\t\tpop si\n",
+                    "\t\tpop ax\n",
+                    s"\t\tmov [ARR_$id+si], ax\n"
+                )
+        }
     }
 
     def stmPrint(prt: Print, s: Status): Unit = {
@@ -176,7 +204,8 @@ object Generator86 {
     def evalFactor(factor: Factor, s: Status): Unit = {
         factor match {
             case IntValue(i) => evalInt(i, s)
-            case Variable(id) => evalVar(id, s)
+            case Variable(id, None) => evalVar(id, s)
+            case Variable(id, Some(expr)) => evalExpression(expr, s); evalArray(id, s)
             case expr: Expression => evalExpression(expr, s)
         }
     }
@@ -238,6 +267,16 @@ object Generator86 {
             "\t\tpush ax\n"
         )
         s.varNames = s.varNames + id
+    }
+
+    def evalArray(id: String, s: Status): Unit = {
+        // pop index from stack
+        // read array from data section and push the value to the stack
+        s.out.append(
+            "\t\tpop si\n",
+            s"\t\tmov ax, [ARR_$id+si]\n",
+            "\t\tpush ax\n"
+        )
     }
 
     def evalInt(i: Int, s: Status): Unit = {

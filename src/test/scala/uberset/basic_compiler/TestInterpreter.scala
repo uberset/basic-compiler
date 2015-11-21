@@ -59,8 +59,15 @@ object TestInterpreter {
                    |RETURN
                    |999 REM END
                    |""".stripMargin,
-                 "Hello!\n" * 3)
-
+                 "Hello!\n" * 3),
+            test("""DIM A(32767)
+                   |LET A(32767) = -1
+                   |INPUT A(0)
+                   |PRINT A(32767)
+                   |PRINT A(0)
+                   |PRINT A(1)
+                   |""".stripMargin,
+                 "-10", "-1\n-10\n0\n")
         )
         val tests = results.size
         val passed = results.filter(identity).size
