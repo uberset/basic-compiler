@@ -67,7 +67,12 @@ object TestInterpreter {
                    |PRINT A(0)
                    |PRINT A(1)
                    |""".stripMargin,
-                 "-10", "-1\n-10\n0\n")
+                 "-10", "-1\n-10\n0\n"),
+            test("""FOR I=1 TO 9 STEP 2
+                   |  PRINT I*I
+                   |NEXT I
+                   |""".stripMargin,
+                 "1\n9\n25\n49\n81\n")
         )
         val tests = results.size
         val passed = results.filter(identity).size

@@ -61,7 +61,19 @@ object TestParser {
                     Line(Input(Variable("A",Expression(Term(IntValue(0)))))),
                     Line(Print(Expression(Term(Variable("A",Expression(Term(IntValue(32767)))))))),
                     Line(Print(Expression(Term(Variable("A",Expression(Term(IntValue(0))))))))
-                )))
+                ))),
+            test("""FOR I=1 TO 9 STEP 2
+                   |  PRINT I*I
+                   |NEXT I
+                   |""".stripMargin,
+                 Program(Seq(
+                     Line(For("I",
+                         Expression(Term(IntValue(1))),
+                         Expression(Term(IntValue(9))),
+                         Expression(Term(IntValue(2))))),
+                     Line(Print(Expression(Term(Variable("I"),List((Mul(),Variable("I"))))))),
+                     Line(Next("I")))
+                 ))
         )
         val tests = results.size
         val passed = results.filter(identity).size

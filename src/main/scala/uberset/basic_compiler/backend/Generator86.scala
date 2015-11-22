@@ -19,6 +19,7 @@ object Generator86 {
 
     case class Status(
          var dataCount: Int = 0,
+         var lblCount: Int = 0,
          var varNames: Set[String] = Set(),
          out: ListBuffer[String] = ListBuffer[String]()
     )
@@ -58,7 +59,68 @@ object Generator86 {
             case stm: Rem    => ()
             case stm: Input  => stmInput (stm, s)
             case stm: Dim    => stmDim   (stm, s)
+            case stm: For    => stmFor   (stm, s)
+            case stm: Next   => stmNext  (stm, s)
         }
+    }
+
+    def stmNext(nxt: Next, s: Status): Unit = {
+        val id = nxt.id
+        val lbl = "LBL_"+s.lblCount
+        s.lblCount+=1
+        s.out.append(
+            s"$lbl:\n",
+            "\t\tpop dx\n", // jump
+            "\t\tpop cx\n", // step
+            "\t\tpop bx\n", // to
+            s"\t\tmov ax, [VAR_$id]\n", // variable
+            "\t\tadd ax, cx\n",         // variable+step
+            "\t\tcmp cx, 0\n",
+            "\t\tjl .neg\n",
+            "\t\tjg .pos\n",
+            "; .zero:\n",               // step == 0
+            "\t\tcmp ax, bx\n",
+            "\t\tje .loop\n",           // var == to
+            "\t\tjne .end\n",
+            ".pos:\n",                  // step > 0
+            "\t\tcmp ax, bx\n",
+            "\t\tjle .loop\n",          // var <= to
+            "\t\tjg .end\n",
+            ".neg:\n",                  // step < 0
+            "\t\tcmp ax, bx\n",
+            "\t\tjge .loop\n",          // var >= to
+            "\t\tjl .end\n",
+            ".loop:\n",
+            s"\t\tmov [VAR_$id], ax\n",
+            "\t\tpush bx\n", // to
+            "\t\tpush cx\n", // step
+            "\t\tpush dx\n", // jump
+            "\t\tpush dx\n", // jump
+            "\t\tret\n",
+            ".end:\n"
+        )
+    }
+
+    def stmFor(f: For, s: Status): Unit = {
+        val  For(id, from, to, step) = f
+        evalExpression(from, s)
+        setVari(Variable(id), s)
+        evalExpression(to, s)   // to stack
+        if(step.isDefined) {
+            evalExpression(step.get, s) // to stack
+        } else {
+            s.out.append(
+                "\t\tmov ax, -1\n",
+                "\t\tpush ax\n"         // -1 to stack
+            )
+        }
+        val lbl = "LBL_"+s.lblCount
+        s.lblCount+=1
+        s.out.append(
+            s"\t\tcall $lbl\n",  // IP to stack
+            s"$lbl:\n"
+        )
+
     }
 
     def stmDim(dim: Dim, s: Status): Unit = {

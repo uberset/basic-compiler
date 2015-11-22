@@ -46,7 +46,40 @@ object Interpreter {
             case stm: Rem => ()
             case stm: Input => run(stm, s)
             case stm: Dim => run(stm, s)
+            case stm: For => run(stm, s)
+            case stm: Next => run(stm, s)
         }
+    }
+
+    def run(nxt: Next, s: Status): Unit = {
+        val Next(id) = nxt
+        val jump = s.stack.pop()
+        val step = s.stack.pop()
+        val to = s.stack.pop()
+        val valu = s.variables(id) + step
+        if(step > 0 && valu <= to || step <0 && valu >= to || step == 0 && valu == to) {
+            setVariable(Variable(id), valu, s)
+            s.stack.push(to)
+            s.stack.push(step)
+            s.stack.push(jump)
+            s.lineIndex = jump
+        }
+    }
+
+    def run(f: For, s: Status): Unit = {
+        val For(id, from, to, step) = f
+        val fr = evalExpr(from, s)
+        val t = evalExpr(to,s)
+        val st = step match {
+            case Some(expr) => evalExpr(expr, s)
+            case None => 1
+        }
+        // initialize variable
+        setVariable(Variable(id), fr, s)
+        // push to, step and line index to stack
+        s.stack.push(t)
+        s.stack.push(st)
+        s.stack.push(s.lineIndex)
     }
 
     def run(dim: Dim, s: Status): Unit = {

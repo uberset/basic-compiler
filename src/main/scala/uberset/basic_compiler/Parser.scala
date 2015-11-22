@@ -75,6 +75,8 @@ object Parser {
         else if(s.startsWith(REM)) stmRem(s)
         else if(s.startsWith(INPUT)) stmInput(s)
         else if(s.startsWith(DIM)) stmDim(s)
+        else if(s.startsWith(FOR)) stmFor(s)
+        else if(s.startsWith(NEXT)) stmNext(s)
         else fail(s"Statement expected at: $s")
     }
 
@@ -88,6 +90,32 @@ object Parser {
     val REM = "REM"
     val INPUT = "INPUT"
     val DIM = "DIM"
+    val FOR = "FOR"
+    val TO = "TO"
+    val STEP = "STEP"
+    val NEXT = "NEXT"
+
+    def stmNext(s: String): (Next, String) = {
+        val s1 = require(NEXT, s)
+        val (id, rest) = identifier(s1)
+        (Next(id), rest)
+    }
+
+    def stmFor(s: String): (For, String) = {
+        val s1 = require(FOR, s)
+        val (id, s2) = identifier(s1)
+        val s3 = require('=', s2)
+        val (from, s4) = expression(s3)
+        val s5 = require(TO, s4)
+        val (to, s6) = expression(s5)
+        if(s6.startsWith(STEP)) {
+            val s7 = require(STEP, s6)
+            val (step, rest) = expression(s7)
+            (For(id, from, to, step), rest)
+        } else {
+            (For(id, from, to), s6)
+        }
+    }
 
     def stmDim(s: String): (Dim, String) = {
         val s1 = require(DIM, s)

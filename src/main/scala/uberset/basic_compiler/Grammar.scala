@@ -21,8 +21,14 @@ case class Program(lines: Seq[Line])
 
 // line = [integer] statement ;
 case class Line(nr: Option[Int], stm: Statement)
-// statement = print | goto | gosub | return | let | if | rem | input | dim ;
+// statement = print | goto | gosub | return | let | if | rem | input | dim | for | next ;
 sealed abstract class Statement
+
+// next = 'NEXT' ;
+case class Next(id: String) extends Statement
+
+// for = 'FOR' identifier '=' expression 'TO' expression ( 'STEP' expression ) ;
+case class For(id: String, from: Expression, to: Expression, step: Option[Expression]) extends Statement
 
 // dim = 'DIM' identifier '(' integer ')' ;
 case class Dim(variable: String, upper: Int) extends Statement
@@ -117,4 +123,9 @@ object Term {
 object Variable {
     def apply(name: String): Variable = Variable(name, None)
     def apply(name: String, expression: Expression): Variable = Variable(name, Some(expression))
+}
+
+object For {
+    def apply(id: String, from: Expression, to: Expression): For = For(id, from, to, None)
+    def apply(id: String, from: Expression, to: Expression, step: Expression): For = For(id, from, to, Some(step))
 }
