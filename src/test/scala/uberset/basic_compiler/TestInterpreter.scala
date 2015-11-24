@@ -72,7 +72,12 @@ object TestInterpreter {
                    |  PRINT I*I
                    |NEXT I
                    |""".stripMargin,
-                 "1\n9\n25\n49\n81\n")
+                 "1\n9\n25\n49\n81\n"),
+            test("""FOR I=1 TO 5
+                   |  PRINT I
+                   |NEXT I
+                   |""".stripMargin,
+                 "1\n2\n3\n4\n5\n")
         )
         val tests = results.size
         val passed = results.filter(identity).size
