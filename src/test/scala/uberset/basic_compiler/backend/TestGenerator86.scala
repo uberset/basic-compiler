@@ -54,6 +54,11 @@ object TestGenerator86 {
                  """FOR I=1 TO 9 STEP 2
                    |  PRINT I*I
                    |NEXT I
+                   |""".stripMargin),
+            test("for1.asm",
+                 """FOR I=1 TO 5
+                   |  PRINT I
+                   |NEXT I
                    |""".stripMargin)
         )
         val tests = results.size
