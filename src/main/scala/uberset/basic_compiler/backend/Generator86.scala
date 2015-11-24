@@ -105,13 +105,13 @@ object Generator86 {
         val  For(id, from, to, step) = f
         evalExpression(from, s)
         setVari(Variable(id), s)
-        evalExpression(to, s)   // to stack
+        evalExpression(to, s)   // to to stack
         if(step.isDefined) {
-            evalExpression(step.get, s) // to stack
+            evalExpression(step.get, s) // step to stack
         } else {
             s.out.append(
-                "\t\tmov ax, -1\n",
-                "\t\tpush ax\n"         // -1 to stack
+                "\t\tmov ax, 1\n",
+                "\t\tpush ax\n"         // default step 1 to stack
             )
         }
         val lbl = "LBL_"+s.lblCount
@@ -120,7 +120,6 @@ object Generator86 {
             s"\t\tcall $lbl\n",  // IP to stack
             s"$lbl:\n"
         )
-
     }
 
     def stmDim(dim: Dim, s: Status): Unit = {
