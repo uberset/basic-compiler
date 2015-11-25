@@ -90,9 +90,6 @@ object GeneratorJVM {
               |""".stripMargin
         )
         setVari(vari, s)
-/*        s.code.append(
-            "\t\tcall putln\n"
-        )*/
     }
 
     def stmIf(stm: If, s: Status): Unit = {
@@ -118,7 +115,7 @@ object GeneratorJVM {
     }
 
     def stmReturn(ret: Return, s: Status): Unit = {
-        s.code.append(s"ret\n")
+        s.code.append("ret\n")
     }
 
     def stmGosub(go: Gosub, s: Status): Unit = {
@@ -332,7 +329,6 @@ object GeneratorJVM {
            |   return
            |.end method
            |.method public static main([Ljava/lang/String;)V
-           |   .limit locals 40
            |   .limit stack 10000
            |""".stripMargin
     }
