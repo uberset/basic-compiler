@@ -13,7 +13,6 @@
    return
 .end method
 .method public static main([Ljava/lang/String;)V
-   .limit locals 40
    .limit stack 10000
 LINE_10:
 getstatic java/lang/System/out Ljava/io/PrintStream;

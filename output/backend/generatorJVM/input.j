@@ -14,7 +14,6 @@
    return
 .end method
 .method public static main([Ljava/lang/String;)V
-   .limit locals 40
    .limit stack 10000
 invokestatic  java/lang/System/console()Ljava/io/Console;
 invokevirtual java/io/Console/readLine()Ljava/lang/String;

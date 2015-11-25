@@ -17,7 +17,6 @@
    return
 .end method
 .method public static main([Ljava/lang/String;)V
-   .limit locals 40
    .limit stack 10000
 sipush 1
 ineg
