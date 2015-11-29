@@ -1,4 +1,4 @@
-/*
+ /*
   Author: uberset
   Date: 2015-11-14
   Licence: GPL v2
@@ -42,11 +42,20 @@ object TestGenerator86 {
                    |RETURN
                    |999 REM END
                    |""".stripMargin),
+            test("array0.asm",
+                 """DIM A(2)
+                   |LET A(0) = 1
+                   |LET A(1) = 2
+                   |LET A(2) = 3
+                   |PRINT A(0)
+                   |PRINT A(1)
+                   |PRINT A(2)
+                   |""".stripMargin),
             test("array.asm",
-                 """DIM A(32463)
-                   |LET A(32463) = -1
+                 """DIM A(30000)
+                   |LET A(30000) = -1
                    |INPUT A(0)
-                   |PRINT A(32463)
+                   |PRINT A(30000)
                    |PRINT A(0)
                    |PRINT A(1)
                    |""".stripMargin),

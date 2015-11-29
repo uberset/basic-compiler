@@ -1,37 +1,31 @@
 		org 100h
 section .data
-ARR_A:		times 30001 dw 0
+ARR_A:		times 3 dw 0
 section .text
 		mov ax, 1
 		push ax
-		pop ax
-		neg ax
-		push ax
-		mov ax, 30000
-		push ax
-		pop si
-		shl si, 1
-		pop ax
-		mov [ARR_A+si], ax
-		call getsbuff
-		call string2int
-		push ax
 		mov ax, 0
 		push ax
 		pop si
 		shl si, 1
 		pop ax
 		mov [ARR_A+si], ax
-		call putln
-		mov ax, 30000
+		mov ax, 2
+		push ax
+		mov ax, 1
 		push ax
 		pop si
 		shl si, 1
-		mov ax, [ARR_A+si]
-		push ax
 		pop ax
-		call puti
-		call putln
+		mov [ARR_A+si], ax
+		mov ax, 3
+		push ax
+		mov ax, 2
+		push ax
+		pop si
+		shl si, 1
+		pop ax
+		mov [ARR_A+si], ax
 		mov ax, 0
 		push ax
 		pop si
@@ -42,6 +36,15 @@ section .text
 		call puti
 		call putln
 		mov ax, 1
+		push ax
+		pop si
+		shl si, 1
+		mov ax, [ARR_A+si]
+		push ax
+		pop ax
+		call puti
+		call putln
+		mov ax, 2
 		push ax
 		pop si
 		shl si, 1

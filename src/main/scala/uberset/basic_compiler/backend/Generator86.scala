@@ -206,6 +206,7 @@ object Generator86 {
                 evalExpression(expr, s)
                 s.out.append(
                     "\t\tpop si\n",
+                    "\t\tshl si, 1\n",
                     "\t\tpop ax\n",
                     s"\t\tmov [ARR_$id+si], ax\n"
                 )
@@ -335,6 +336,7 @@ object Generator86 {
         // read array from data section and push the value to the stack
         s.out.append(
             "\t\tpop si\n",
+            "\t\tshl si, 1\n",
             s"\t\tmov ax, [ARR_$id+si]\n",
             "\t\tpush ax\n"
         )
